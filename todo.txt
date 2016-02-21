@@ -1,0 +1,23 @@
+final:
+- find a word list
+- check for script support
+
+low priority:
+- commands
+- validate draw data
+- use binary transport for draw data
+
+bugs:
+- draw drag off canvas
+- idle -> finishes round
+- resolution of drawing is poor
+- bandwidth
+- text wrapping on users and text
+- say who last artist was
+- xhr poll error
+- prevent unicode spam
+- limit number of chat lines
+- shuffle words better
+- afk users that guess words are hard to see
+- sound for every guess
+- send guessed word to artists
