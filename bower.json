@@ -1,0 +1,18 @@
+{
+  "name": "pysketch",
+  "version": "0.0.0",
+  "authors": [
+    "sk89q <the.sk89q@gmail.com>"
+  ],
+  "license": "All rights reserved",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "soundmanager2": "*"
+  }
+}

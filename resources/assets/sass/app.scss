@@ -9,9 +9,11 @@ $chat-input-height: 90px;
 
 body {
   background: #efefef;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
 }
 
-.noscript {
+.load-error {
   max-width: 400px;
   margin: 40px auto;
   text-align: center;

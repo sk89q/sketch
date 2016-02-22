@@ -1,12 +1,16 @@
 import _ from 'lodash';
 
 var COLORS = [
-  '#712121',
-  '#236F2A',
-  '#236F65',
-  '#254E6D',
-  '#23266F',
-  '#6C6926'
+  '#1DBF9F',
+  '#2BCB6E',
+  '#379ADB',
+  '#9B57B5',
+  '#E91C60',
+  '#EDC111',
+  '#E77F23',
+  '#E94C3B',
+  '#98A8A9',
+  '#617C89'
 ];
 
 export class ColorBag {

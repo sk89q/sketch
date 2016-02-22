@@ -7,7 +7,7 @@ import re
 import time
 import traceback
 import gevent
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit
 from gevent import Greenlet
 from gevent import monkey
@@ -448,17 +448,28 @@ class ScoreState(State):
 
 
 class Room(object):
-    def __init__(self, name, word_list):
+    def __init__(self,
+                 name,
+                 word_list,
+                 round_limit=20,
+                 round_time=150,
+                 rush_phase_time=20,
+                 score_time=10,
+                 artist_count=1,
+                 min_player_count=2,
+                 time_fudge=0,
+                 draw_inactivity_time=30):
+        assert min_player_count > 1, 'min_player_count > 1 otherwise bad things happen during artist selection'
         self.name = name
         self.round = 1
-        self.round_limit = 1  # 20
-        self.round_time = 5  # 150
-        self.rush_phase_time = 20
-        self.score_time = 500
-        self.artist_count = 1
-        self.min_player_count = 2
-        self.time_fudge = 0
-        self.draw_inactivity_time = 30
+        self.round_limit = round_limit
+        self.round_time = round_time
+        self.rush_phase_time = rush_phase_time
+        self.score_time = score_time
+        self.artist_count = artist_count
+        self.min_player_count = min_player_count
+        self.time_fudge = time_fudge
+        self.draw_inactivity_time = draw_inactivity_time
         self.messages = MessageLog(self)
         self.users = []
         self.scores = collections.defaultdict(lambda: 0)
@@ -540,7 +551,8 @@ with open('words.txt', 'rb') as f:
 print "read word list"
 users = UserList()
 rooms = {
-    'default': Room('default', word_list)
+    'default': Room('default', word_list),
+    'testing': Room('testing', word_list, round_time=30, score_time=2, min_player_count=2),
 }
 
 
@@ -672,6 +684,11 @@ def say(data, user=None):
 @logged_in
 def set_away(data, user=None):
     user.away = bool(data['away'])
+
+
+@app.route('/bower_components/<path:filename>')
+def bower_components(filename):
+    return send_from_directory('bower_components', filename)
 
 
 @app.route('/')

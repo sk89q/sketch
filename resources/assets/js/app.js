@@ -1,80 +1,88 @@
 'use strict';
 
-var React = require('react');
-var ReactDOM = require('react-dom');
-var Components = require('./components');
-
+import React from 'react';
+import ReactDOM from 'react-dom';
+import * as Features from './features';
 import Transport from './transport';
 import { App } from './components';
 
-var transport = new Transport('http://' + document.domain + ':' + location.port);
-transport.on("connect", function() {
-  transport.login("bobby" + Math.round(Math.random() * 10000));
-});
-transport.connect();
+function setup() {
+  var transport = new Transport('http://' + document.domain + ':' + location.port);
+  var rushPhase = false;
 
-var rushPhase = false;
+  var winSound = soundManager.createSound({url: "/static/snd/win.mp3"});
+  var roundStartSound = soundManager.createSound({url: "/static/snd/round_start.mp3"});
+  var drawStartSound = soundManager.createSound({url: "/static/snd/draw_start.mp3"});
+  var correctGuessSound = soundManager.createSound({url: "/static/snd/correct_guess.mp3"});
+  var rushPhaseSound = soundManager.createSound({url: "/static/snd/rush_phase.mp3"});
+  var tickingSound = soundManager.createSound({url: "/static/snd/ticking.mp3"});
 
-var winSound = new Audio("/static/snd/win.mp3");
-var roundStartSound = new Audio("/static/snd/round_start.mp3");
-var drawStartSound = new Audio("/static/snd/draw_start.mp3");
-var correctGuessSound = new Audio("/static/snd/correct_guess.mp3");
-var rushPhaseSound = new Audio("/static/snd/rush_phase.mp3");
-var tickingSound = new Audio("/static/snd/ticking.mp3");
+  transport.on('error', function (e) {
+    alert(e);
+  });
 
-tickingSound.addEventListener('timeupdate', function () {
-  if (rushPhase && this.currentTime > this.duration - 0.5) {
-    this.currentTime = 0;
-    this.play();
-  }
-}, false);
+  transport.on("connect", function() {
+    transport.login("bobby" + Math.round(Math.random() * 10000));
+  });
 
-transport.on('error', function (e) {
-  alert(e);
-});
+  transport.on('alert', function (e) {
+    console.error(e.message);
+  });
 
-transport.on('alert', function (e) {
-  console.error(e.message);
-});
+  transport.on('welcome', function (data) {;
+    transport.joinRoom('testing');
+  });
 
-transport.on('welcome', function (data) {;
-  transport.joinRoom('default');
-});
+  transport.on('state', function (data) {
+    rushPhase = false;
+    tickingSound.stop();
 
-transport.on('state', function (data) {
-  rushPhase = false;
-  tickingSound.pause();
-  tickingSound.currentTime = 0;
+    var state = data.state;
+    switch (state) {
+      case 'wait':
+        break;
+      case 'draw':
+        drawStartSound.play();
+        break;
+      case 'guess':
+        roundStartSound.play();
+        break;
+      case 'score':
+        winSound.play();
+        break;
+    }
+  });
 
-  var state = data.state;
-  switch (state) {
-    case 'wait':
-      break;
-    case 'draw':
-      drawStartSound.play();
-      break;
-    case 'guess':
-      roundStartSound.play();
-      break;
-    case 'score':
-      winSound.play();
-      break;
-  }
-});
+  transport.on('state_update', function (data) {
+    if (!rushPhase && data.rush_phase) {
+      rushPhase = true;
+      rushPhaseSound.play();
+      tickingSound.play({loops: 9999});
+    }
+  });
 
-transport.on('state_update', function (data) {
-  if (!rushPhase && data.rush_phase) {
-    rushPhase = true;
-    rushPhaseSound.play();
-    tickingSound.play();
-  }
-});
+  transport.on('guess_correct', function (data) {
+    correctGuessSound.play();
+  });
 
-transport.on('guess_correct', function (data) {
-  correctGuessSound.play();
-});
+  transport.connect();
 
-ReactDOM.render(
-  <App transport={transport}/>,
-  document.getElementById('container')
-);
+  ReactDOM.render(
+    <App transport={transport}/>,
+    document.getElementById('container')
+  );
+}
+
+if (Features.isCanvasSupported() &&
+    Features.isAudioSupported() &&
+    Features.isWebSocketSupported() &&
+    Features.isDataViewSupported) {
+  soundManager.setup({
+    preferFlash: false,
+    onready: function() {
+      setup();
+    }
+  });
+} else {
+  document.getElementById('missing-features').style.display = 'block';
+}

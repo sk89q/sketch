@@ -3,3 +3,4 @@
 /static/css/app.css*
 /static/js/app.js*
 *.pyc
+/bower_components

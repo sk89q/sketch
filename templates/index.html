@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>SKetch | pre-alpha</title>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400italic,400,300,300italic' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
         integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"
@@ -11,7 +12,7 @@
 <body>
 <div id="container">
   <noscript>
-    <div class="noscript">
+    <div class="load-error">
       <h1>
         <img src="/static/img/sketch.png"/> SKetch
       </h1>
@@ -22,11 +23,24 @@
       </div>
     </div>
   </noscript>
+  <div class="load-error" id="missing-features" style="display: none">
+    <h1>
+      <img src="/static/img/sketch.png"/> SKetch
+    </h1>
+    <div class="alert alert-danger" role="alert">
+      <i class="fa fa-warning"></i>
+      <strong>Houston, we have a problem!</strong>
+      Your browser is missing features required for modern web applications. Please
+      download and install an up to date browser like
+      <a href="https://www.google.com/chrome/browser/desktop/index.html">Google Chrome</a>
+      or <a href="https://www.mozilla.org/en-US/firefox/new/">Mozilla Firefox</a>.
+    </div>
 </div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"
         integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"
         integrity="sha384-hNRMX8KZmQEfbL/EerzUsKC7mvNaFvAuq8RgHVG+Hd3zQ2L5lUMjrJyitOyftyUC" crossorigin="anonymous"></script>
+<script src="/bower_components/soundmanager2/script/soundmanager2-nodebug-jsmin.js"></script>
 <script src="/static/js/app.js"></script>
 <!-- Do you love Eduardo? -->
 <!-- version: {{ git_hash }} -->
