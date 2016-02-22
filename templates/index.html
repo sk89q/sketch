@@ -1,4 +1,4 @@
-<!doctype>
+<!doctype html>
 <html>
 <head>
   <title>SKetch | pre-alpha</title>
@@ -9,11 +9,26 @@
   <link rel="stylesheet" href="/static/css/app.css">
 </head>
 <body>
-<div id="container"></div>
+<div id="container">
+  <noscript>
+    <div class="noscript">
+      <h1>
+        <img src="/static/img/sketch.png"/> SKetch
+      </h1>
+      <div class="alert alert-danger" role="alert">
+        <i class="fa fa-warning"></i>
+        <strong>Houston, we have a problem!</strong>
+        Your browser doesn't have JavaScript support or it isn't enabled.
+      </div>
+    </div>
+  </noscript>
+</div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"
         integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"
         integrity="sha384-hNRMX8KZmQEfbL/EerzUsKC7mvNaFvAuq8RgHVG+Hd3zQ2L5lUMjrJyitOyftyUC" crossorigin="anonymous"></script>
 <script src="/static/js/app.js"></script>
+<!-- Do you love Eduardo? -->
+<!-- version: {{ git_hash }} -->
 </body>
 </html>

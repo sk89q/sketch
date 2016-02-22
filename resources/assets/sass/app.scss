@@ -1,5 +1,25 @@
+$draw-canvas-width: 600px;
+$draw-canvas-height: 400px;
+$sidebar-width: 200px;
+$header-height: 70px;
+$controls-height: 90px;
+$help-height: 70px;
+$toolbar-height: 100px;
+$chat-input-height: 90px;
+
 body {
   background: #efefef;
+}
+
+.noscript {
+  max-width: 400px;
+  margin: 40px auto;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 30px 0;
+    padding: 0;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -34,9 +54,9 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  height: 70px;
+  width: $sidebar-width;
+  height: $header-height;
   padding: 10px;
-  width: 200px;
   background: #ddd;
   border-right: 1px solid #ccc;
   font-size: 150%;
@@ -46,8 +66,8 @@ body {
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 200px;
-  height: 90px;
+  width: $sidebar-width;
+  height: $controls-height;
   margin: 0;
   padding: 30px 15px 15px 15px;
   border-right: 1px solid #ccc;
@@ -65,10 +85,10 @@ body {
 
 #users {
   position: fixed;
-  top: 70px;
+  top: $header-height;
   left: 0;
-  bottom: 90px;
-  width: 200px;
+  bottom: $controls-height;
+  width: $sidebar-width;
   margin: 0;
   padding: 20px 20px 20px 35px;
   overflow: auto;
@@ -114,9 +134,9 @@ body {
   background: #FDF0C9;
   position: fixed;
   top: 0;
-  left: 200px;
-  height: 70px;
-  width: 500px;
+  left: $sidebar-width;
+  width: $draw-canvas-width;
+  height: $help-height;
   padding: 10px;
 
   .pie-progress {
@@ -145,9 +165,9 @@ body {
   background: #fff;
   position: fixed;
   top: 0;
-  left: 200px;
+  left: $sidebar-width;
   bottom: 0;
-  width: 500px;
+  width: $draw-canvas-width;
   z-index: 10;
 
   canvas {
@@ -158,9 +178,9 @@ body {
   #score-text {
     position: fixed;
     top: 0;
-    left: 200px;
+    left: $sidebar-width;
     bottom: 0;
-    width: 500px;
+    width: $draw-canvas-width;
     z-index: 12;
     text-align: center;
     padding: 20px;
@@ -191,17 +211,18 @@ body {
 #draw-canvas {
   background: #fff;
   position: fixed;
-  top: 70px;
-  left: 200px;
+  top: $help-height;
+  left: $sidebar-width;
   bottom: 0;
+  cursor: crosshair;
 }
 
 #toolbox {
   position: fixed;
-  top: 570px;
-  left: 200px;
-  width: 500px;
-  height: 100px;
+  top: ($help-height + $draw-canvas-height);
+  left: $sidebar-width;
+  width: $draw-canvas-width;
+  height: $toolbar-height;
   padding: 10px;
 
   .btn {
@@ -239,9 +260,9 @@ body {
   display: block;
   position: fixed;
   top: 0;
-  left: 700px;
+  left: ($sidebar-width + $draw-canvas-width);
   right: 0;
-  bottom: 90px;
+  bottom: $chat-input-height;
   margin: 0;
   padding: 20px;
   overflow: auto;
@@ -256,20 +277,22 @@ body {
     padding: 0 10px;
     max-width: 500px;
     border-radius: 5px;
+    overflow: hidden;
 
     .name {
-      display: inline-block;
+      display: inline;
       font-size: 110%;
       margin: 0 5px 0 0;
     }
 
     .message {
-      display: inline-block;
-    }
+      display: inline;
 
-    p {
-      margin: 0;
-      padding: 0;
+      > p {
+        margin: 0;
+        padding: 0;
+        display: inline;
+      }
     }
 
     .emoji {
@@ -301,16 +324,16 @@ body {
   position: fixed;
   margin: 0;
   padding: 15px;
-  left: 700px;
+  left: ($sidebar-width + $draw-canvas-width);
   right: 0;
   bottom: 0;
-  height: 90px;
+  height: $chat-input-height;
   border-left: 1px solid #ccc;
 }
 
 #message-container {
   position: fixed;
-  left: 720px;
+  left: ($sidebar-width + $draw-canvas-width + 20px);
   bottom: 20px;
   right: 20px;
 }

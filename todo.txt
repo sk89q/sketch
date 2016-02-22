@@ -1,5 +1,4 @@
 final:
-- find a word list
 - check for script support
 
 low priority:
@@ -21,3 +20,6 @@ bugs:
 - afk users that guess words are hard to see
 - sound for every guess
 - send guessed word to artists
+- chat length not limited
+- spam possible
+- ping
