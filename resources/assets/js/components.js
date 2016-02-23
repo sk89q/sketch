@@ -7,6 +7,7 @@ import _ from 'lodash';
 import FlipMove from 'react-flip-move';
 import ColorPicker from 'react-color';
 import Confetti from './confetti';
+import { TransportMixin } from './transport';
 import { Pen, NetworkedCanvas } from './pen';
 import ColorBag from './colorbag';
 import MarkdownMixin from './markup';
@@ -21,7 +22,8 @@ export const MessageList = React.createClass({
   lastIndex: 0,
   colorBag: new ColorBag(),
   mixins: [
-    MarkdownMixin
+    MarkdownMixin,
+    TransportMixin
   ],
   getInitialState: function () {
     return {
@@ -29,7 +31,7 @@ export const MessageList = React.createClass({
     };
   },
   componentWillMount: function () {
-    this.props.transport.on('chat', msg => {
+    this.addTransportHandler('chat', msg => {
       msg.id = this.lastIndex++;
       this.setState({messages: this.state.messages.concat([msg])});
     });
@@ -67,11 +69,14 @@ export const MessageList = React.createClass({
 });
 
 export const ChatForm = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
   getInitialState: function () {
     return {message: ''};
   },
   componentWillMount: function () {
-    this.props.transport.on('state', data => {
+    this.addTransportHandler('state', data => {
       this.setState({canChat: data.state != "draw"})
     });
   },
@@ -104,11 +109,14 @@ export const ChatForm = React.createClass({
 });
 
 export const AwayPanel = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
   getInitialState: function () {
     return {away: false}
   },
   componentWillMount: function () {
-    this.props.transport.on('me', data => {
+    this.addTransportHandler('me', data => {
       this.setState({away: data.away})
     });
   },
@@ -128,6 +136,9 @@ export const AwayPanel = React.createClass({
 });
 
 export const UserList = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
   userSortFn: function (a, b) {
     if (a.score == b.score) {
       return 0;
@@ -139,28 +150,28 @@ export const UserList = React.createClass({
     return {users: []};
   },
   componentWillMount: function () {
-    this.props.transport.on('room', data => {
+    this.addTransportHandler('room', data => {
       this.setState({users: data.users});
     });
 
-    this.props.transport.on('user_join', data => {
+    this.addTransportHandler('user_join', data => {
       joinSound.play();
       this.setState({users: this.state.users.concat([data])});
     });
 
-    this.props.transport.on('user_part', data => {
+    this.addTransportHandler('user_part', data => {
       partSound.play();
       this.setState({users: this.state.users.filter((u) => u.name != data.name)});
     });
 
-    this.props.transport.on('user_status', (data) => {
+    this.addTransportHandler('user_status', (data) => {
       var users = this.state.users.splice(0);
       var user = _.find(users, (u) => u.name == data.name);
       user.away = data.away;
       this.setState({users: users});
     });
 
-    this.props.transport.on('state', data => {
+    this.addTransportHandler('state', data => {
       var users = this.state.users.slice(0);
 
       users.forEach((u) => {
@@ -173,7 +184,7 @@ export const UserList = React.createClass({
       });
     });
 
-    this.props.transport.on('scores', data => {
+    this.addTransportHandler('scores', data => {
       var users = this.state.users.splice(0);
 
       for (var i = 0; i < data.scores.length; i++) {
@@ -190,7 +201,7 @@ export const UserList = React.createClass({
       this.setState({users: users});
     });
 
-    this.props.transport.on('scores_reset', (data) => {
+    this.addTransportHandler('scores_reset', (data) => {
       var users = this.state.users.splice(0);
       users.forEach(u => u.score = 0);
       this.setState({users: users});
@@ -217,6 +228,9 @@ export const UserList = React.createClass({
 });
 
 export const Canvas = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
   getInitialState: function () {
     return {
       tool: 'line'
@@ -241,7 +255,7 @@ export const Canvas = React.createClass({
       this.props.transport.draw(buffer);
     };
 
-    this.props.transport.on('state', data => {
+    this.addTransportHandler('state', data => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       this.localPen.reset();
       this.localPen.setColor(this.props.color[0], this.props.color[1], this.props.color[2]);
@@ -249,7 +263,7 @@ export const Canvas = React.createClass({
       this.networkedCanvas.reset();
     });
 
-    this.props.transport.on('draw', msg => {
+    this.addTransportHandler('draw', msg => {
       this.networkedCanvas.read(msg);
     });
 
@@ -309,6 +323,9 @@ export const Canvas = React.createClass({
 });
 
 export const DrawPanel = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
   getInitialState: function () {
     return {
       state: 'wait',
@@ -319,11 +336,11 @@ export const DrawPanel = React.createClass({
     };
   },
   componentWillMount: function () {
-    this.props.transport.on('state', data => {
+    this.addTransportHandler('state', data => {
       this.setState(data);
     });
 
-    this.props.transport.on('state_update', data => {
+    this.addTransportHandler('state_update', data => {
       this.setState(data);
     });
   },
@@ -433,6 +450,9 @@ export const ConfettiCanvas = React.createClass({
 });
 
 export const HelpPanel = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
   getInitialState: function () {
     return {
       state: 'wait',
@@ -440,7 +460,7 @@ export const HelpPanel = React.createClass({
     };
   },
   componentWillMount: function () {
-    this.props.transport.on('state', data => {
+    this.addTransportHandler('state', data => {
       if ('elapsed_time' in data) {
         var now = new Date().getTime() / 1000;
         data.start_time = now - data.elapsed_time;
@@ -450,7 +470,7 @@ export const HelpPanel = React.createClass({
       this.setState(data);
     });
 
-    this.props.transport.on('state_update', (data) => {
+    this.addTransportHandler('state_update', (data) => {
       if ('elapsed_time' in data) {
         var now = new Date().getTime() / 1000;
         data.start_time = now - data.elapsed_time;
@@ -519,13 +539,16 @@ export const HelpPanel = React.createClass({
 });
 
 export const ScoreScreen = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
   getInitialState: function () {
     return {
       state: 'wait'
     };
   },
   componentWillMount: function () {
-    this.props.transport.on('state', data => {
+    this.addTransportHandler('state', data => {
       this.setState(data);
     });
   },
@@ -574,6 +597,9 @@ export const ScoreScreen = React.createClass({
 });
 
 export const Login = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
   getInitialState: function () {
     return {
       name: localStorage.sketchName || '',
@@ -583,16 +609,16 @@ export const Login = React.createClass({
     }
   },
   componentWillMount: function () {
-    this.props.transport.on('connect', () => {
+    this.addTransportHandler('connect', () => {
       this.setState({connected: true, joined: false})
     });
-    this.props.transport.on('disconnect', () => {
+    this.addTransportHandler('disconnect', () => {
       this.setState({connected: false, joined: false, logging_in: false})
     });
-    this.props.transport.on('room', () => {
+    this.addTransportHandler('room', () => {
       this.setState({joined: true, logging_in: false})
     });
-    this.props.transport.on('alert', () => {
+    this.addTransportHandler('alert', () => {
       this.setState({logging_in: false})
     });
   },

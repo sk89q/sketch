@@ -2,11 +2,11 @@
 
 import _ from 'lodash';
 
-export default function Transport(url) {
+function Transport(url) {
   this.url = url;
   this.eventHandlers = {};
   this.socket = null;
-};
+}
 
 Transport.prototype.connect = function() {
   this.socket = io.connect(this.url, {
@@ -78,7 +78,6 @@ Transport.prototype.connect = function() {
   this.socket.on('guess_correct', data => this.fire('guess_correct', data));
 
   this.socket.on('draw', data => {
-    console.info("<< draw", typeof data);
     this.fire('draw', data);
   });
 };
@@ -133,6 +132,15 @@ Transport.prototype.on = function(event, callback) {
   this.eventHandlers[event].push(callback);
 };
 
+Transport.prototype.off = function(event, callback) {
+  if (event in this.eventHandlers) {
+    var index = this.eventHandlers[event].indexOf(callback);
+    if (index >= 0) {
+      this.eventHandlers[event].splice(index, 1);
+    }
+  }
+};
+
 Transport.prototype.fire = function(event, args) {
   if (event in this.eventHandlers) {
     _.forEach(this.eventHandlers[event], function (value) {
@@ -140,3 +148,21 @@ Transport.prototype.fire = function(event, args) {
     });
   }
 };
+
+export var TransportMixin = {
+  componentWillMount: function() {
+    this.transportHandlers = [];
+  },
+  componentWillUnmount: function() {
+    for (var i = 0; i < this.transportHandlers.length; i++) {
+      var [event, callback] = this.transportHandlers[i];
+      this.props.transport.off(event, callback);
+    }
+  },
+  addTransportHandler: function(event, callback) {
+    this.transportHandlers.push([event, callback]);
+    this.props.transport.on(event, callback);
+  }
+};
+
+export default Transport;
