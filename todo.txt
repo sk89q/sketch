@@ -23,3 +23,5 @@ bugs:
 - chat length not limited
 - spam possible
 - ping
+- don't send back drawn
+- drawing corners

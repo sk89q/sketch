@@ -22,7 +22,7 @@ version = get_git_revision_hash()
 app = Flask(__name__)
 app.debug = False
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode="gevent", heartbeat_interval=3, heartbeat_timeout=10)
+socketio = SocketIO(app, async_mode="gevent", heartbeat_interval=3, heartbeat_timeout=10, binary=True)
 
 log = logging.getLogger("sketch")
 

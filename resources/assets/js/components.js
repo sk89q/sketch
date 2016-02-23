@@ -1,16 +1,17 @@
 'use strict';
 
-var MIN_STROKE_DIST_SQ = Math.pow(5, 2);
-
-var React = require('react');
-var TimerMixin = require('react-timer-mixin');
-var ColorBag = require('./colorbag');
-var Confetti = require('./confetti');
-var Markup = require('./markup');
-
+import React from 'react';
+import ReactDOM from 'react-dom';
+import TimerMixin from 'react-timer-mixin';
 import _ from 'lodash';
 import FlipMove from 'react-flip-move';
 import ColorPicker from 'react-color';
+import Confetti from './confetti';
+import Pen from './pen';
+import ColorBag from './colorbag';
+import MarkdownMixin from './markup';
+
+var MIN_STROKE_DIST_SQ = Math.pow(5, 2);
 
 var joinSound = new Audio("/static/snd/join.mp3");
 var partSound = new Audio("/static/snd/part.mp3");
@@ -18,9 +19,9 @@ var sendSound = new Audio("/static/snd/send.mp3");
 
 export const MessageList = React.createClass({
   lastIndex: 0,
-  colorBag: new ColorBag.ColorBag(),
+  colorBag: new ColorBag(),
   mixins: [
-    Markup.MarkdownMixin
+    MarkdownMixin
   ],
   getInitialState: function () {
     return {
@@ -228,38 +229,31 @@ export const Canvas = React.createClass({
   },
   componentDidMount: function () {
     var canvas = this.refs.canvas;
-    var ctx = canvas.getContext("2d");
     var painting = false;
     var startX = 0;
     var startY = 0;
 
+    this.pen = new Pen(canvas);
+
+    this.pen.writePacket = buffer => {
+      this.props.transport.draw(buffer);
+    };
+
     this.props.transport.on('state', data => {
-      this.clear();
+      this.pen.reset();
+      this.pen.setColor(this.props.color);
+      this.pen.setLineWidth(2);
     });
 
     this.props.transport.on('draw', msg => {
-      switch (msg.action) {
-        case 'line':
-          ctx.strokeStyle = msg.color;
-          ctx.lineJoin = "round";
-          ctx.lineWidth = msg.thickness;
-          ctx.beginPath();
-          ctx.moveTo(msg.x0, msg.y0);
-          ctx.lineTo(msg.x1, msg.y1);
-          ctx.closePath();
-          ctx.stroke();
-          break;
-        case 'clear':
-          this.clear();
-          break;
-      }
+      this.pen.readPacket(msg);
     });
 
     canvas.addEventListener("mousedown", e => {
       e.preventDefault();
       var x = e.pageX - canvas.offsetLeft;
       var y = e.pageY - canvas.offsetTop;
-      painting = this.props.canDraw;
+      painting = this.props.canDraw;``
       startX = x;
       startY = y;
     });
@@ -281,35 +275,18 @@ export const Canvas = React.createClass({
 
         switch (this.props.tool) {
           case 'eraser':
-            thickness = 20;
-            color = '#fff';
+            this.pen.setLineWidth(20);
+            this.pen.setColor(255, 255, 255);
+            this.pen.moveTo(startX, startY);
+            this.pen.lineTo(x, y);
             break;
           default:
-            thickness = 2;
-            color = this.props.color;
+            this.pen.setLineWidth(2);
+            this.pen.setColor(this.props.color[0], this.props.color[1], this.props.color[2]);
+            this.pen.moveTo(startX, startY);
+            this.pen.lineTo(x, y);
+            break;
         }
-
-        ctx.strokeStyle = color;
-        ctx.lineJoin = "round";
-        ctx.lineWidth = thickness;
-        ctx.beginPath();
-        ctx.moveTo(startX, startY);
-        ctx.lineTo(x, y);
-        ctx.closePath();
-        ctx.stroke();
-
-        this.props.transport.draw({
-          action: 'line',
-          x0: startX,
-          y0: startY,
-          x1: x,
-          y1: y,
-          thickness: thickness,
-          color: color
-        });
-
-        startX = x;
-        startY = y;
       }
     });
 
@@ -344,13 +321,10 @@ export const DrawPanel = React.createClass({
     });
   },
   handleColorChange: function (color) {
-    this.setState({color: '#' + color.hex});
+    this.setState({color: color.rgb});
   },
   clear: function () {
-    this.props.transport.draw({
-      action: 'clear'
-    });
-    this.refs.canvas.clear();
+    this.refs.canvas.pen.clear();
   },
   setTool: function (tool) {
     this.setState({tool: tool});
@@ -365,7 +339,7 @@ export const DrawPanel = React.createClass({
     if (this.state.state == 'draw') {
       return (
         <div>
-          <Canvas ref="canvas" canDraw={true} color={this.state.color} tool={this.state.tool} transport={this.props.transport}/>
+          <Canvas ref="canvas" canDraw={true} color={[this.state.color.r, this.state.color.g, this.state.color.b]} tool={this.state.tool} transport={this.props.transport}/>
           <div id="toolbox">
             <div className="draw-controls">
               <div id="color-picker">

@@ -13,18 +13,16 @@ var COLORS = [
   '#617C89'
 ];
 
-export class ColorBag {
-  constructor() {
-    this.history = {};
-  }
-
-  getColor(s) {
-    if (s in this.history) {
-      return this.history[s];
-    } else {
-      var color = COLORS[_.random(0, COLORS.length - 1)];
-      this.history[s] = color;
-      return color;
-    }
-  }
+export default function ColorBag() {
+  this.history = {};
 }
+
+ColorBag.prototype.getColor = function(s) {
+  if (s in this.history) {
+    return this.history[s];
+  } else {
+    var color = COLORS[_.random(0, COLORS.length - 1)];
+    this.history[s] = color;
+    return color;
+  }
+};

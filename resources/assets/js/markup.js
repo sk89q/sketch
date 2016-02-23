@@ -4,7 +4,7 @@ var Remarkable = require('remarkable');
 var RemarkableEmoji = require('remarkable-emoji');
 var twemoji = require('twemoji');
 
-export const MarkdownMixin = {
+const MarkdownMixin = {
   componentWillMount: function() {
     this.md = new Remarkable('default', {
       html: false,
@@ -41,3 +41,5 @@ export const MarkdownMixin = {
     return twemoji.parse(this.md.render(text), {size: 16});
   }
 };
+
+export default MarkdownMixin;
