@@ -72,13 +72,6 @@ function setup() {
   );
 }
 
-
-var transport = new Transport('http://' + document.domain + ':' + location.port);
-transport.on("connect", function() {
-  transport.login("bobby" + Math.round(Math.random() * 10000));
-});
-transport.connect();
-
 if (Features.isCanvasSupported() &&
     Features.isAudioSupported() &&
     Features.isWebSocketSupported() &&
@@ -86,7 +79,7 @@ if (Features.isCanvasSupported() &&
   soundManager.setup({
     preferFlash: false,
     onready: function() {
-      //setup();
+      setup();
     }
   });
 } else {

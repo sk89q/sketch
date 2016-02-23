@@ -241,19 +241,19 @@ export const Canvas = React.createClass({
 
     this.props.transport.on('state', data => {
       this.pen.reset();
-      this.pen.setColor(this.props.color);
+      this.pen.setColor(this.props.color[0], this.props.color[1], this.props.color[2]);
       this.pen.setLineWidth(2);
     });
 
     this.props.transport.on('draw', msg => {
-      this.pen.readPacket(msg);
+      this.pen.read(msg);
     });
 
     canvas.addEventListener("mousedown", e => {
       e.preventDefault();
       var x = e.pageX - canvas.offsetLeft;
       var y = e.pageY - canvas.offsetTop;
-      painting = this.props.canDraw;``
+      painting = this.props.canDraw;
       startX = x;
       startY = y;
     });
@@ -287,6 +287,9 @@ export const Canvas = React.createClass({
             this.pen.lineTo(x, y);
             break;
         }
+
+        startX = x;
+        startY = y;
       }
     });
 
@@ -305,7 +308,7 @@ export const DrawPanel = React.createClass({
   getInitialState: function () {
     return {
       state: 'wait',
-      color: '#000',
+      color: {r: 0, g: 0, b: 0},
       tool: 'line',
       can_skip: true,
       hints_remaining: 2
@@ -368,7 +371,7 @@ export const DrawPanel = React.createClass({
     } else {
       return (
         <div>
-          <Canvas canDraw={false} transport={this.props.transport}/>
+          <Canvas canDraw={false} transport={this.props.transport} color={[this.state.color.r, this.state.color.g, this.state.color.b]}/>
         </div>
       );
     }

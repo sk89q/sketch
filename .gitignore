@@ -4,3 +4,4 @@
 /static/js/app.js*
 *.pyc
 /bower_components
+/venv

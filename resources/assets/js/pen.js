@@ -1,6 +1,7 @@
 'use strict';
 
 import _ from 'lodash';
+import base64 from 'base64-js';
 
 const PACKET_CLEAR = 0;
 const PACKET_COLOR = 1;
@@ -18,17 +19,18 @@ export default function Pen(canvas) {
 
 Pen.prototype.reset = function() {
   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  this.color = [0, 0, 0];
-  this.position = [0, 0];
-  this.lineWidth = 2;
-}
+  this.color = null;
+  this.position = [-1, -1];
+  this.lineWidth = null;
+};
 
 Pen.prototype.read = function(buffer) {
-  var view = new DataView(buffer);
+  var decoded = base64.toByteArray(buffer).buffer;
+  var view = new DataView(decoded);
   var offset = 0;
   try {
-    while (view.byteLength > 0) {
-      offset += this.readPacket(buffer, offset);
+    while (decoded.byteLength - offset > 0) {
+      offset += this.readPacket(decoded, offset);
     }
   } catch (e) {
     if (e instanceof RangeError) {
@@ -53,13 +55,13 @@ Pen.prototype.readPacket = function(buffer, offset) {
       this.position = [view.getUint16(1), view.getUint16(3)];
       return 5;
     case PACKET_MOVE_TO_REL:
-      this.position = [this.position[0] + view.getUint8(1), this.position[1] + view.getUint8(2)];
+      this.position = [this.position[0] + view.getInt8(1), this.position[1] + view.getInt8(2)];
       return 3;
     case PACKET_LINE_TO:
       this._drawLineTo(view.getUint16(1), view.getUint16(3));
       return 3;
     case PACKET_LINE_TO_REL:
-      this._drawLineTo(this.position[0] + view.getUint8(1), this.position[1] + view.getUint8(2));
+      this._drawLineTo(this.position[0] + view.getInt8(1), this.position[1] + view.getInt8(2));
       return 3;
   }
 };
@@ -67,27 +69,31 @@ Pen.prototype.readPacket = function(buffer, offset) {
 Pen.prototype.writePacket = function(buffer) {
 };
 
+Pen.prototype._writePacket = function(buffer) {
+  this.writePacket(base64.fromByteArray(new Uint8Array(buffer)));
+};
+
 Pen.prototype.setColor = function(r, g, b) {
-  if (this.color[0] != r || this.color[1] != g || this.color[2] != b) {
+  if (this.color === null || this.color[0] != r || this.color[1] != g || this.color[2] != b) {
     let buffer = new ArrayBuffer(4);
     let view = new DataView(buffer);
     view.setUint8(0, PACKET_COLOR);
     view.setUint8(1, r);
     view.setUint8(2, g);
     view.setUint8(3, b);
-    this.writePacket(buffer);
+    this._writePacket(buffer);
     this.color = [r, g, b];
   }
 };
 
 Pen.prototype.setLineWidth = function(lineWidth) {
   lineWidth = _.clamp(lineWidth, 0, 255);
-  if (this.lineWidth != lineWidth) {
-    var buffer = new ArrayBuffer(4);
+  if (this.lineWidth === null || this.lineWidth != lineWidth) {
+    var buffer = new ArrayBuffer(2);
     var view = new DataView(buffer);
     view.setUint8(0, PACKET_LINE_WIDTH);
     view.setUint8(1, lineWidth);
-    this.writePacket(buffer);
+    this._writePacket(buffer);
     this.lineWidth = lineWidth;
   }
 };
@@ -96,7 +102,7 @@ Pen.prototype.clear = function() {
   var buffer = new ArrayBuffer(1);
   var view = new DataView(buffer);
   view.setUint8(0, PACKET_CLEAR);
-  this.writePacket(buffer);
+  this._writePacket(buffer);
   this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 };
 
@@ -114,14 +120,14 @@ Pen.prototype.moveTo = function(x, y) {
       view.setUint8(0, PACKET_MOVE_TO);
       view.setUint16(1, x);
       view.setUint16(3, y);
-      this.writePacket(buffer);
+      this._writePacket(buffer);
     } else {
       let buffer = new ArrayBuffer(3);
       let view = new DataView(buffer);
       view.setUint8(0, PACKET_MOVE_TO_REL);
       view.setInt8(1, xx);
       view.setInt8(2, yy);
-      this.writePacket(buffer);
+      this._writePacket(buffer);
     }
 
     this.position = [x, y];
@@ -139,14 +145,14 @@ Pen.prototype.lineTo = function(x, y) {
       view.setUint8(0, PACKET_LINE_TO);
       view.setUint16(1, x);
       view.setUint16(3, y);
-      this.writePacket(buffer);
+      this._writePacket(buffer);
     } else {
       let buffer = new ArrayBuffer(3);
       let view = new DataView(buffer);
       view.setUint8(0, PACKET_LINE_TO_REL);
       view.setInt8(1, xx);
       view.setInt8(2, yy);
-      this.writePacket(buffer);
+      this._writePacket(buffer);
     }
     this._drawLineTo(x, y);
   }

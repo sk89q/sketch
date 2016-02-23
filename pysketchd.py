@@ -6,14 +6,10 @@ import random
 import re
 import time
 import traceback
-import gevent
+import eventlet
 from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit
-from gevent import Greenlet
-from gevent import monkey
 from pysketch.util import *
-
-monkey.patch_all()
 
 VALID_NAME_PATTERN = re.compile('^[A-Za-z0-9_]{2,20}$')
 
@@ -22,7 +18,7 @@ version = get_git_revision_hash()
 app = Flask(__name__)
 app.debug = False
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode="gevent", heartbeat_interval=3, heartbeat_timeout=10, binary=True)
+socketio = SocketIO(app, heartbeat_interval=3, heartbeat_timeout=10, binary=False)
 
 log = logging.getLogger("sketch")
 
@@ -75,7 +71,7 @@ class UserList(object):
         self.users = {}
 
     def login(self, sid, name):
-        for _, user in self.users.iteritems():
+        for _, user in list(self.users.items()):
             if user.name and user.name.lower() == name.lower():
                 raise NameInUseError()
         user = User(sid, name)
@@ -98,7 +94,7 @@ class UserList(object):
             del self.users[sid]
 
     def in_room(self, room):
-        return filter(lambda u: u.room == room, self.users.values())
+        return [u for u in list(self.users.values()) if u.room == room]
 
 
 class Drawing(object):
@@ -106,11 +102,11 @@ class Drawing(object):
         self.room = room
         self.log = []
 
-    def draw(self, data):
-        if data['action'] == 'clear':
-            self.log = []
+    def draw(self, data, user):
+        #if data['action'] == 'clear':
+        #    self.log = []
         self.log.append(data)
-        self.room.broadcast('draw', data)
+        self.room.broadcast('draw', data, except_for=user)
 
     def send_drawn(self, user):
         for data in self.log:
@@ -363,7 +359,7 @@ class RoundState(State):
     def draw(self, data, user):
         self.started_drawing = True
         if user in self.artists:
-            self.drawing.draw(data)
+            self.drawing.draw(data, user)
 
     def part(self, user):
         if user in self.artists:
@@ -434,7 +430,7 @@ class ScoreState(State):
         self.room.reset()
 
     def send_state(self, user):
-        scores = sorted([{'name': name, 'score': score} for name, score in self.scores.iteritems()],
+        scores = sorted([{'name': name, 'score': score} for name, score in list(self.scores.items())],
                         key=lambda x: -x['score'])
         user.send('state', {
             'state': 'score',
@@ -496,9 +492,10 @@ class Room(object):
         for user in self.users:
             self.state.send_state(user)
 
-    def broadcast(self, event, data):
+    def broadcast(self, event, data, except_for=None):
         for user in self.users:
-            user.send(event, data)
+            if user != except_for:
+                user.send(event, data)
 
     def broadcast_user_status(self, target):
         self.broadcast("user_status", target.user_status())
@@ -547,8 +544,8 @@ class Room(object):
 
 
 with open('words.txt', 'rb') as f:
-    word_list = map(lambda x: x.strip(), f.readlines())
-print "read word list"
+    word_list = [x.strip() for x in f.readlines()]
+print("read word list")
 users = UserList()
 rooms = {
     'default': Room('default', word_list),
@@ -558,12 +555,12 @@ rooms = {
 
 def think():
     while True:
-        for name, room in rooms.iteritems():
+        for name, room in list(rooms.items()):
             room.think()
-        gevent.sleep(0.5)
+        eventlet.sleep(0.5)
 
 
-Greenlet.spawn(think)
+eventlet.spawn(think)
 
 
 def logged_in(f):
@@ -596,7 +593,7 @@ def apply_caching(response):
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["X-Content-Type-Options"] = "nosniff"
     for key in ('X-WebKit-CSP', 'X-Content-Security-Policy', 'Content-Security-Policy'):
-        response.headers[key] = "default-src *; style-src * 'unsafe-inline';"
+        response.headers[key] = "default-src *; style-src * 'unsafe-inline'; media-src * 'unsafe-inline';"
     return response
 
 
@@ -612,7 +609,7 @@ def login(data):
         try:
             users.login(request.sid, username)
             log.debug("{} has logged in (sid: {})".format(username, request.sid))
-        except NameInUseError, e:
+        except NameInUseError as e:
             emit('alert', {'message': 'That name is in use.', 'then': 'connect'})
     else:
         emit('alert', {'message': 'You need an alphanumeric name between 2 and 20 characters long.', 'then': 'connect'})

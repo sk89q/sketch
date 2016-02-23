@@ -17,7 +17,7 @@ def get_git_revision_hash():
 
 def create_hint(phrase, reveal_length):
     words = phrase.split(" +")
-    return ' '.join(map(lambda w: w[:reveal_length] + '_' * (len(phrase) - reveal_length), words))
+    return ' '.join([w[:reveal_length] + '_' * (len(phrase) - reveal_length) for w in words])
 
 
 class PhraseChooser(object):

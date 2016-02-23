@@ -25,3 +25,7 @@ bugs:
 - ping
 - don't send back drawn
 - drawing corners
+
+wip:
+- clear should clear drawing log
+- per user pen
