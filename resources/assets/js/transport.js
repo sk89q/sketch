@@ -77,7 +77,10 @@ Transport.prototype.connect = function() {
 
   this.socket.on('guess_correct', data => this.fire('guess_correct', data));
 
-  this.socket.on('draw', data => this.fire('draw', data));
+  this.socket.on('draw', data => {
+    console.info("<< draw", typeof data);
+    this.fire('draw', data);
+  });
 };
 
 Transport.prototype.ensureConnected = function() {

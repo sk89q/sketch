@@ -127,13 +127,13 @@ class Drawing(object):
             self.next_pen_index += 1
         enveloped = struct.pack('>B', self.pens[user].index) + base64.b64decode(data)
         self.pens[user].write(enveloped)
-        self.room.broadcast('draw', base64.b64encode(enveloped), except_for=user)
+        self.room.broadcast('draw', base64.b64encode(enveloped).decode('ascii'), except_for=user)
 
     def send_drawn(self, user):
         buffer = BytesIO()
         for pen in self.pens.values():
             buffer.write(pen.getvalue())
-        user.send('draw', base64.b64encode(buffer.getvalue()))
+        user.send('draw', base64.b64encode(buffer.getvalue()).decode('ascii'))
 
 
 class MessageLog(object):
@@ -567,7 +567,7 @@ class Room(object):
 
 
 with open('words.txt', 'rb') as f:
-    word_list = [x.strip() for x in f.readlines()]
+    word_list = [x.decode('utf-8').strip() for x in f.readlines()]
 print("read word list")
 users = UserList()
 rooms = {

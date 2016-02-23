@@ -75,6 +75,10 @@ Pen.prototype._writePacket = function(buffer) {
 };
 
 Pen.prototype.setColor = function(r, g, b) {
+  r = _.clamp(r, 0, 255);
+  g = _.clamp(g, 0, 255);
+  b = _.clamp(b, 0, 255);
+
   if (this.color === null || this.color[0] != r || this.color[1] != g || this.color[2] != b) {
     let buffer = new ArrayBuffer(4);
     let view = new DataView(buffer);
@@ -89,6 +93,7 @@ Pen.prototype.setColor = function(r, g, b) {
 
 Pen.prototype.setLineWidth = function(lineWidth) {
   lineWidth = _.clamp(lineWidth, 0, 255);
+
   if (this.lineWidth === null || this.lineWidth != lineWidth) {
     var buffer = new ArrayBuffer(2);
     var view = new DataView(buffer);
@@ -136,6 +141,9 @@ Pen.prototype.moveTo = function(x, y) {
 };
 
 Pen.prototype.lineTo = function(x, y) {
+  x = _.clamp(x, 0, 65536);
+  y = _.clamp(y, 0, 65536);
+
   if (this.position[0] != x || this.position[1] != y) {
     var xx = x - this.position[0];
     var yy = y - this.position[1];
