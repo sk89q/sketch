@@ -7,7 +7,7 @@ import _ from 'lodash';
 import FlipMove from 'react-flip-move';
 import ColorPicker from 'react-color';
 import Confetti from './confetti';
-import { TransportMixin } from './transport';
+import { TransportMixin, DISCONNECTED, CONNECTING, CONNECTED, LOGGED_IN } from './transport';
 import { Pen, NetworkedCanvas } from './pen';
 import ColorBag from './colorbag';
 import MarkdownMixin from './markup';
@@ -626,18 +626,44 @@ export const Login = React.createClass({
 });
 
 export const App = React.createClass({
+  mixins: [
+    TransportMixin
+  ],
+  getInitialState: function() {
+    return {status: this.props.transport.status};
+  },
+  componentDidMount: function() {
+    this.addTransportHandler('status', data => {
+      this.setState({status: data});
+    });
+  },
   render: function () {
-    return (
-      <div>
-        <div id="header"><img src="/static/img/sketch.png"/> SKetch</div>
-        <HelpPanel transport={this.props.transport}/>
-        <AwayPanel transport={this.props.transport}/>
-        <DrawPanel transport={this.props.transport}/>
-        <UserList transport={this.props.transport}/>
-        <MessageList transport={this.props.transport}/>
-        <ChatForm transport={this.props.transport}/>
-        <ScoreScreen transport={this.props.transport}/>
-      </div>
-    )
+    switch (this.state.status) {
+      case DISCONNECTED:
+        return (
+          <div></div>
+        );
+      case CONNECTING:
+        return (
+          <div>Connecting...</div>
+        );
+      case CONNECTED:
+        return (
+          <div></div>
+        );
+      case LOGGED_IN:
+        return (
+          <div>
+            <div id="header"><img src="/static/img/sketch.png"/> SKetch</div>
+            <switch transport={this.props.transport}/>
+            <AwayPanel transport={this.props.transport}/>
+            <DrawPanel transport={this.props.transport}/>
+            <UserList transport={this.props.transport}/>
+            <MessageList transport={this.props.transport}/>
+            <ChatForm transport={this.props.transport}/>
+            <ScoreScreen transport={this.props.transport}/>
+          </div>
+        );
+    }
   }
 });

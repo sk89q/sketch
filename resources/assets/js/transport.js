@@ -2,9 +2,10 @@
 
 import _ from 'lodash';
 
-const STATUS_DISCONNECTED = 0;
-const STATUS_CONNECTED = 1;
-const STATUS_LOGGED_IN = 2;
+export const DISCONNECTED = 'disconnected';
+export const CONNECTING = 'connecting';
+export const CONNECTED = 'connected';
+export const LOGGED_IN = 'logged_in';
 
 function Room(name, users) {
   this.name = name;
@@ -15,7 +16,7 @@ function Transport(url) {
   this.url = url;
   this.eventHandlers = {};
   this.socket = null;
-  this.status = STATUS_DISCONNECTED;
+  this.status = DISCONNECTED;
   this.username = null;
   this.away = false;
   this.state = {};
@@ -29,18 +30,23 @@ Transport.prototype.connect = function() {
     reconnection: true
   });
 
+  this.state = CONNECTING;
+  this.fire('status', this.status);
+
   this.socket.on('connect', () => {
     console.info("Connection established");
-    this.status = STATUS_CONNECTED;
+    this.status = CONNECTED;
     this.room = null;
     this.fire('connect');
+    this.fire('status', this.status);
   });
 
   this.socket.on('disconnect', () => {
     console.warn("Disconnected");
-    this.status = STATUS_DISCONNECTED;
+    this.status = DISCONNECTED;
     this.room = null;
     this.fire('disconnect');
+    this.fire('status', this.status);
   });
 
   this.socket.on('error', e => {
@@ -55,9 +61,10 @@ Transport.prototype.connect = function() {
 
   this.socket.on('welcome', data => {
     console.info(`Logged in as ${data.username}`);
-    this.status = STATUS_LOGGED_IN;
+    this.status = LOGGED_IN;
     this.username = data.username;
     this.fire('welcome', data);
+    this.fire('status', this.status);
   });
 
   this.socket.on('me', data => {
