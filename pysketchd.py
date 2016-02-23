@@ -1,11 +1,15 @@
+import base64
 import collections
 import functools
 import logging
 import os.path
 import random
 import re
+import struct
 import time
 import traceback
+from io import BytesIO
+
 import eventlet
 from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit
@@ -97,20 +101,39 @@ class UserList(object):
         return [u for u in list(self.users.values()) if u.room == room]
 
 
+class Pen(object):
+    def __init__(self, index):
+        self.index = index
+        self.buffer = BytesIO()
+
+    def write(self, data):
+        self.buffer.write(data)
+
+    def getvalue(self):
+        return self.buffer.getvalue()
+
+
 class Drawing(object):
     def __init__(self, room):
         self.room = room
-        self.log = []
+        self.pens = {}
+        self.next_pen_index = 0
 
     def draw(self, data, user):
         #if data['action'] == 'clear':
         #    self.log = []
-        self.log.append(data)
-        self.room.broadcast('draw', data, except_for=user)
+        if user not in self.pens:
+            self.pens[user] = Pen(self.next_pen_index)
+            self.next_pen_index += 1
+        enveloped = struct.pack('>B', self.pens[user].index) + base64.b64decode(data)
+        self.pens[user].write(enveloped)
+        self.room.broadcast('draw', base64.b64encode(enveloped), except_for=user)
 
     def send_drawn(self, user):
-        for data in self.log:
-            user.send('draw', data)
+        buffer = BytesIO()
+        for pen in self.pens.values():
+            buffer.write(pen.getvalue())
+        user.send('draw', base64.b64encode(buffer.getvalue()))
 
 
 class MessageLog(object):

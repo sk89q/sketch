@@ -11,20 +11,19 @@ const PACKET_MOVE_TO_REL = 4;
 const PACKET_LINE_TO = 5;
 const PACKET_LINE_TO_REL = 6;
 
-export default function Pen(canvas) {
+export function Pen(canvas) {
   this.canvas = canvas;
   this.ctx = canvas.getContext("2d");
   this.reset();
 }
 
 Pen.prototype.reset = function() {
-  this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   this.color = null;
   this.position = [-1, -1];
   this.lineWidth = null;
 };
 
-Pen.prototype.read = function(buffer) {
+Pen.prototype.read = function(buffer, offset) {
   var decoded = base64.toByteArray(buffer).buffer;
   var view = new DataView(decoded);
   var offset = 0;
@@ -41,6 +40,7 @@ Pen.prototype.read = function(buffer) {
 
 Pen.prototype.readPacket = function(buffer, offset) {
   var view = new DataView(buffer, offset);
+
   switch (view.getUint8(0)) {
     case PACKET_CLEAR:
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -67,6 +67,7 @@ Pen.prototype.readPacket = function(buffer, offset) {
 };
 
 Pen.prototype.writePacket = function(buffer) {
+  // Should be overridden
 };
 
 Pen.prototype._writePacket = function(buffer) {
@@ -169,3 +170,38 @@ Pen.prototype._drawLineTo = function(x, y) {
   this.ctx.stroke();
   this.position = [x, y];
 };
+
+export function NetworkedCanvas(canvas) {
+  this.canvas = canvas;
+  this.reset();
+}
+
+NetworkedCanvas.prototype.reset = function() {
+  this.pens = {};
+};
+
+NetworkedCanvas.prototype.read = function(buffer) {
+  var decoded = base64.toByteArray(buffer).buffer;
+  var view = new DataView(decoded);
+  var offset = 0;
+  try {
+    while (decoded.byteLength - offset > 0) {
+      var index = view.getUint8(offset);
+      offset += 1 + this.getPen(index).readPacket(decoded, offset + 1);
+    }
+  } catch (e) {
+    if (e instanceof RangeError) {
+      console.warn("Failed to read pen packet! Pen state is now corrupted");
+    }
+  }
+};
+
+NetworkedCanvas.prototype.getPen = function(index) {
+  if (index in this.pens) {
+    return this.pens[index];
+  } else {
+    var pen = new Pen(this.canvas);
+    this.pens[index] = pen;
+    return pen;
+  }
+}

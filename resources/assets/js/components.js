@@ -7,7 +7,7 @@ import _ from 'lodash';
 import FlipMove from 'react-flip-move';
 import ColorPicker from 'react-color';
 import Confetti from './confetti';
-import Pen from './pen';
+import { Pen, NetworkedCanvas } from './pen';
 import ColorBag from './colorbag';
 import MarkdownMixin from './markup';
 
@@ -229,24 +229,28 @@ export const Canvas = React.createClass({
   },
   componentDidMount: function () {
     var canvas = this.refs.canvas;
+    var ctx = canvas.getContext("2d");
     var painting = false;
     var startX = 0;
     var startY = 0;
 
-    this.pen = new Pen(canvas);
+    this.localPen = new Pen(canvas);
+    this.networkedCanvas = new NetworkedCanvas(canvas);
 
-    this.pen.writePacket = buffer => {
+    this.localPen.writePacket = buffer => {
       this.props.transport.draw(buffer);
     };
 
     this.props.transport.on('state', data => {
-      this.pen.reset();
-      this.pen.setColor(this.props.color[0], this.props.color[1], this.props.color[2]);
-      this.pen.setLineWidth(2);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      this.localPen.reset();
+      this.localPen.setColor(this.props.color[0], this.props.color[1], this.props.color[2]);
+      this.localPen.setLineWidth(2);
+      this.networkedCanvas.reset();
     });
 
     this.props.transport.on('draw', msg => {
-      this.pen.read(msg);
+      this.networkedCanvas.read(msg);
     });
 
     canvas.addEventListener("mousedown", e => {
@@ -275,16 +279,16 @@ export const Canvas = React.createClass({
 
         switch (this.props.tool) {
           case 'eraser':
-            this.pen.setLineWidth(20);
-            this.pen.setColor(255, 255, 255);
-            this.pen.moveTo(startX, startY);
-            this.pen.lineTo(x, y);
+            this.localPen.setLineWidth(20);
+            this.localPen.setColor(255, 255, 255);
+            this.localPen.moveTo(startX, startY);
+            this.localPen.lineTo(x, y);
             break;
           default:
-            this.pen.setLineWidth(2);
-            this.pen.setColor(this.props.color[0], this.props.color[1], this.props.color[2]);
-            this.pen.moveTo(startX, startY);
-            this.pen.lineTo(x, y);
+            this.localPen.setLineWidth(2);
+            this.localPen.setColor(this.props.color[0], this.props.color[1], this.props.color[2]);
+            this.localPen.moveTo(startX, startY);
+            this.localPen.lineTo(x, y);
             break;
         }
 
@@ -327,7 +331,7 @@ export const DrawPanel = React.createClass({
     this.setState({color: color.rgb});
   },
   clear: function () {
-    this.refs.canvas.pen.clear();
+    this.refs.canvas.localPen.clear();
   },
   setTool: function (tool) {
     this.setState({tool: tool});
