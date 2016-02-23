@@ -2,10 +2,24 @@
 
 import _ from 'lodash';
 
+const STATUS_DISCONNECTED = 0;
+const STATUS_CONNECTED = 1;
+const STATUS_LOGGED_IN = 2;
+
+function Room(name, users) {
+  this.name = name;
+  this.users = users;
+}
+
 function Transport(url) {
   this.url = url;
   this.eventHandlers = {};
   this.socket = null;
+  this.status = STATUS_DISCONNECTED;
+  this.username = null;
+  this.away = false;
+  this.state = {};
+  this.room = null;
 }
 
 Transport.prototype.connect = function() {
@@ -17,16 +31,23 @@ Transport.prototype.connect = function() {
 
   this.socket.on('connect', () => {
     console.info("Connection established");
+    this.status = STATUS_CONNECTED;
+    this.room = null;
     this.fire('connect');
   });
+
   this.socket.on('disconnect', () => {
     console.warn("Disconnected");
+    this.status = STATUS_DISCONNECTED;
+    this.room = null;
     this.fire('disconnect');
   });
+
   this.socket.on('error', e => {
     console.error("Error", e);
     this.fire('error', e);
   });
+
   this.socket.on('alert', data => {
     console.error("Error", e);
     this.fire('alert', data);
@@ -34,44 +55,86 @@ Transport.prototype.connect = function() {
 
   this.socket.on('welcome', data => {
     console.info(`Logged in as ${data.username}`);
+    this.status = STATUS_LOGGED_IN;
+    this.username = data.username;
     this.fire('welcome', data);
   });
+
   this.socket.on('me', data => {
     console.info(`I am currently ${data.away ? 'away' : 'not away'}`);
+    this.away = data.away;
     this.fire('me', data);
   });
+
   this.socket.on('room', data => {
     console.info(`Joined room '${data.name}'`, data);
+    this.room = new Room(data.name, data.users);
     this.fire('room', data);
+    this.fire('users', this.room.users);
   });
+
   this.socket.on('user_join', data => {
     console.info(`User ${data.name} joined room`);
+    this.room.users = this.room.users.concat([data]);
     this.fire('user_join', data);
+    this.fire('users', this.room.users);
   });
+
   this.socket.on('user_part', data => {
     console.info(`User ${data.name} parted room`);
+    this.room.users = this.room.users.filter((u) => u.name != data.name);
     this.fire('user_part', data);
+    this.fire('users', this.room.users);
   });
+
   this.socket.on('user_status', data => {
     console.info(`Received user status for ${data.name}`, data);
+    var user = _.find(this.room.users, (u) => u.name == data.name);
+    _.assign(user, data);
     this.fire('user_status', data);
+    this.fire('users', this.room.users);
   });
+
   this.socket.on('chat', data => this.fire('chat', data));
 
   this.socket.on('state', data => {
     console.debug("<< state", data);
+    this.state = data;
+    if (this.room !== null) {
+      this.room.users.forEach((u) => {
+        u.drawing = 'artists' in data && _.includes(data.artists, u.name);
+        u.guessed = false;
+      });
+      this.fire('users', this.room.users);
+    }
     this.fire('state', data);
   });
+
   this.socket.on('state_update', data => {
     console.debug("<< state_update", data);
+    this.state = _.assign(this.state, data);
     this.fire('state_update', data);
   });
+
   this.socket.on('scores', data => {
     console.debug("<< scores", data);
+
+    for (var i = 0; i < data.scores.length; i++) {
+      var entry = data.scores[i];
+      var user = _.find(this.room.users, (u) => u.name == entry.name);
+      user.score = entry.score;
+      if (entry.guessed) {
+        user.guessed = true;
+      }
+    }
+
     this.fire('scores', data);
+    this.fire('users', this.room.users);
   });
+
   this.socket.on('scores_reset', data => {
     console.debug("<< scores_reset", data);
+    this.room.users.forEach(u => u.score = 0);
     this.fire('scores_reset', data);
   });
 

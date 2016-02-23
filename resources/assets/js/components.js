@@ -147,63 +147,17 @@ export const UserList = React.createClass({
     }
   },
   getInitialState: function () {
-    return {users: []};
+    var users = [];
+    if (this.props.transport.room !== null) {
+      users = this.props.transport.room.users.slice(0);
+      users.sort(this.userSortFn);
+    }
+    return {users: users};
   },
   componentWillMount: function () {
-    this.addTransportHandler('room', data => {
-      this.setState({users: data.users});
-    });
-
-    this.addTransportHandler('user_join', data => {
-      joinSound.play();
-      this.setState({users: this.state.users.concat([data])});
-    });
-
-    this.addTransportHandler('user_part', data => {
-      partSound.play();
-      this.setState({users: this.state.users.filter((u) => u.name != data.name)});
-    });
-
-    this.addTransportHandler('user_status', (data) => {
-      var users = this.state.users.splice(0);
-      var user = _.find(users, (u) => u.name == data.name);
-      user.away = data.away;
-      this.setState({users: users});
-    });
-
-    this.addTransportHandler('state', data => {
-      var users = this.state.users.slice(0);
-
-      users.forEach((u) => {
-        u.drawing = 'artists' in data && _.includes(data.artists, u.name);
-        u.guessed = false;
-      });
-
-      this.setState({
-        users: users
-      });
-    });
-
-    this.addTransportHandler('scores', data => {
-      var users = this.state.users.splice(0);
-
-      for (var i = 0; i < data.scores.length; i++) {
-        var entry = data.scores[i];
-        var user = _.find(users, (u) => u.name == entry.name);
-        user.score = entry.score;
-        if (entry.guessed) {
-          user.guessed = true;
-        }
-      }
-
+    this.addTransportHandler('users', (data) => {
+      var users = data.slice(0);
       users.sort(this.userSortFn);
-
-      this.setState({users: users});
-    });
-
-    this.addTransportHandler('scores_reset', (data) => {
-      var users = this.state.users.splice(0);
-      users.forEach(u => u.score = 0);
       this.setState({users: users});
     });
   },
