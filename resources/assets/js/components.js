@@ -243,7 +243,7 @@ export const Canvas = React.createClass({
       startY = y;
     });
 
-    canvas.addEventListener("mousemove", e => {
+    var mouseMove = e => {
       var x = e.pageX - canvas.offsetLeft;
       var y = e.pageY - canvas.offsetTop;
       var distSq = Math.pow(x - startX, 2) + Math.pow(y - startY, 2);
@@ -269,7 +269,11 @@ export const Canvas = React.createClass({
         startX = x;
         startY = y;
       }
-    });
+    };
+
+    canvas.addEventListener("mouseleave", mouseMove);
+
+    canvas.addEventListener("mousemove", mouseMove);
 
     window.addEventListener("mouseup", e => {
       painting = false;
