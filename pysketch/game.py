@@ -154,7 +154,7 @@ class Drawing(object):
 
         try:
             decoded = base64.b64decode(data)
-            type = struct.unpack('>B', decoded[0])
+            type = struct.unpack('>B', decoded[0:1])
             enveloped = struct.pack('>B', self.pens[user].index) + decoded
 
             if type == self.PACKET_CLEAR:
