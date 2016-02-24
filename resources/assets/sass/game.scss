@@ -163,7 +163,7 @@
   top: $help-height;
   left: $sidebar-width;
   bottom: 0;
-  cursor: crosshair;
+  cursor: url(/static/img/paint_cursor.cur), crosshair;
 }
 
 #toolbox {

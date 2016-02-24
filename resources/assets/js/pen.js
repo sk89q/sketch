@@ -120,7 +120,7 @@ Pen.prototype.moveTo = function(x, y) {
     var xx = x - this.position[0];
     var yy = y - this.position[1];
     // Absolute move?
-    if (xx < -128 || xx > 127 || yy < -128 || y >> 127) {
+    if (xx < -128 || xx > 127 || yy < -128 || yy > 127) {
       let buffer = new ArrayBuffer(5);
       let view = new DataView(buffer);
       view.setUint8(0, PACKET_MOVE_TO);
@@ -148,7 +148,7 @@ Pen.prototype.lineTo = function(x, y) {
     var xx = x - this.position[0];
     var yy = y - this.position[1];
     // Absolute move?
-    if (xx < -128 || xx > 127 || yy < -128 || y >> 127) {
+    if (xx < -128 || xx > 127 || yy < -128 || yy > 127) {
       let buffer = new ArrayBuffer(5);
       let view = new DataView(buffer);
       view.setUint8(0, PACKET_LINE_TO);
