@@ -80,6 +80,13 @@ if __name__ == '__main__':
     @socketio.on('login')
     def login(data):
         username = data['username']
+        version = data['version']
+
+        if version != APP_VERSION:
+            emit('login_error', {'message': 'You have an incorrect client version. Try refreshing your browser.'})
+            disconnect()
+            return
+
         if VALID_NAME_PATTERN.match(username):
             try:
                 users.login(request.sid, username, socketio)

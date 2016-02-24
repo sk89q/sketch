@@ -12,8 +12,9 @@ function Room(name, users) {
   this.users = users;
 }
 
-function Transport(url) {
+function Transport(url, version) {
   this.url = url;
+  this.version = version;
   this.loginUsername = "guest";
   this.eventHandlers = {};
   this.socket = null;
@@ -175,7 +176,7 @@ Transport.prototype.ensureConnected = function() {
 Transport.prototype.login = function(username) {
   this.ensureConnected();
   console.debug(`Logging in as ${username}...`);
-  this.socket.emit('login', {username: username});
+  this.socket.emit('login', {username: username, version: this.version});
 };
 
 Transport.prototype.joinRoom = function(name) {

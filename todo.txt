@@ -2,6 +2,7 @@ todo:
 - send version on connect
 - round commands
 - remove debug
+- what happens when server is offline?
 
 later:
 - binary

@@ -7,7 +7,8 @@ import Transport from './transport';
 import { App } from './components';
 
 function setup() {
-  var transport = new Transport('http://' + document.domain + ':' + location.port);
+  var appVersion = document.body.getAttribute("data-version");
+  var transport = new Transport('http://' + document.domain + ':' + location.port, appVersion);
   var rushPhase = false;
 
   var winSound = soundManager.createSound({url: "/static/snd/win.mp3"});
