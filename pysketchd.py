@@ -18,6 +18,8 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s [%(name)s] %(message)s', level=logging.INFO)
     logging.getLogger("sketch").setLevel(logging.DEBUG)
     logging.getLogger("geventwebsocket.handler").setLevel(logging.WARN)
+    logging.getLogger("engineio").setLevel(logging.WARN)
+    logging.getLogger("socketio").setLevel(logging.WARN)
     logging.info("Version: {}".format(APP_VERSION))
 
     parser = argparse.ArgumentParser(description='Process some integers.')
