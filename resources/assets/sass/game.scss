@@ -50,10 +50,15 @@
     margin: 0;
     padding: 0;
 
+    &.away {
+      color: #999;
+      font-style: italic;
+    }
+
     .artist-indicator {
       margin-left: 5px;
       padding: 2px;
-      background: #F37865;
+      background: #2A827F;
       color: #fff;
       border-radius: 3px;
       font-size: 95%;
@@ -64,13 +69,14 @@
       display: inline;
     }
 
-    &.guessed {
+    &.drawing {
+      color: #2A827F;
       font-weight: bold;
     }
 
-    &.away {
-      color: #999;
-      font-style: italic;
+    &.guessed {
+      color: #C5280F;
+      font-weight: bold;
     }
 
     .badge {
@@ -250,6 +256,10 @@
 
     :first-child {
       margin-top: 0;
+    }
+
+    &.msg-guessed-your-word {
+      color: #232797;
     }
 
     &.msg-correct, &.msg-round-end {

@@ -327,12 +327,21 @@ class RoundState(State):
         # Keep track of the player that guessed
         self.guessers.add(user)
 
+        # Play sound for everyone
+        self.room.broadcast("guess_correct", {})
+
         # Tell the user that the guess was correct
-        user.send("guess_correct", {})
         user.send("chat", {
             'type': 'correct',
             'msg': 'You guessed the word **{}**.'.format(self.phrase)
         })
+
+        # Tell the artists of the correct guess
+        for artist in self.artists:
+            artist.send('chat', {
+                'type': 'guessed-your-word',
+                'msg': '**{}** guessed your word, *{}*.'.format(user.name, self.phrase)
+            })
 
         # Tell everyone about the new scores
         self.broadcast_scores([user] + self.artists)
@@ -442,6 +451,11 @@ class RoundState(State):
 
         elif prefix_match_length >= 5 and prefix_match_length >= 0.3 * len(self.phrase):
             user.send("chat", {'type': 'close-guess', 'msg': '**{}** is close!'.format(guess)})
+            for artist in self.artists:
+                artist.send('chat', {
+                    'name': user.name,
+                    'msg': message
+                })
             return True
 
     def think(self):
@@ -552,8 +566,6 @@ class Room(object):
 
             self.users.append(user)
             self.state.join(user)
-            self.messages.send_backlog(user)
-            self.state.send_state(user)
 
             # Tell the user the room information
             users = []
@@ -565,6 +577,9 @@ class Room(object):
                 'name': self.name,
                 'users': users,
             })
+
+            self.messages.send_backlog(user)
+            self.state.send_state(user)
 
     def part(self, user):
         if user in self.users:

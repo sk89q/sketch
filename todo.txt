@@ -17,6 +17,7 @@ todo:
 - validate draw commands
 - send version on connect
 - round commands
+- send word list info on join
 
 later:
 - binary
