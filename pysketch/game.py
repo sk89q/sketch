@@ -544,6 +544,7 @@ class Room(object):
         self.users = []
         self.scores = collections.defaultdict(lambda: 0)
         self.state = WaitForPlayersState(self)
+        self.word_list = word_list
         self.phrase_chooser = PhraseChooser(word_list)
 
     def has_enough_players(self):
@@ -593,6 +594,7 @@ class Room(object):
                 status = user.user_status()
                 status.update(self.state.user_status(user))
                 users.append(status)
+
             user.send('room', {
                 'name': self.name,
                 'users': users,
@@ -600,6 +602,11 @@ class Room(object):
 
             self.messages.send_backlog(user)
             self.state.send_state(user)
+
+            user.send('chat', {
+                'type': 'info',
+                'msg': "You've joined room **#{}** using word list **{}**.".format(self.name, self.word_list.name),
+            })
 
     def part(self, user):
         if user in self.users:
