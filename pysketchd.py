@@ -135,16 +135,19 @@ class Drawing(object):
             self.pens[user] = Pen(self.next_pen_index)
             self.next_pen_index += 1
 
-        decoded = base64.b64decode(data)
-        type = struct.unpack('>B', decoded[0])
-        enveloped = struct.pack('>B', self.pens[user].index) + decoded
+        try:
+            decoded = base64.b64decode(data)
+            type = struct.unpack('>B', decoded[0])
+            enveloped = struct.pack('>B', self.pens[user].index) + decoded
 
-        if type == self.PACKET_CLEAR:
-            self.pens[user].clear()
-        else:
-            self.pens[user].write(enveloped)
+            if type == self.PACKET_CLEAR:
+                self.pens[user].clear()
+            else:
+                self.pens[user].write(enveloped)
 
-        self.room.broadcast('draw', base64.b64encode(enveloped).decode('ascii'), except_for=user)
+            self.room.broadcast('draw', base64.b64encode(enveloped).decode('ascii'), except_for=user)
+        except Exception as e:
+            log.warning("Got invalid input from {}".format(user.name), exc_info=True)
 
     def send_drawn(self, user):
         buffer = BytesIO()
