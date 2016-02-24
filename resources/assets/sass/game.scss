@@ -259,7 +259,20 @@
     }
 
     &.msg-guessed-your-word {
+      padding: 8px 10px;
       color: #232797;
+    }
+
+    &.msg-hint {
+      padding: 8px 10px;
+      color: #C5280F;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      border-radius: 0;
+
+      strong {
+        letter-spacing: 2px;
+      }
     }
 
     &.msg-correct, &.msg-round-end {

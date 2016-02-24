@@ -416,7 +416,7 @@ class RoundState(State):
 
     def skip(self, user):
         if user in self.artists and self.can_skip:
-            self.room.messages.broadcast("round-end", "Round skipped by artist!")
+            self.room.messages.broadcast("round-end", "Round skipped by **{}**!".format(', '.join([u.name for u in self.artists])))
             self.next_state()
             # TODO: don't have all current artists skip if one skips
 
@@ -427,6 +427,7 @@ class RoundState(State):
 
             # Tell everyone
             self.room.broadcast("state_update", {'hint': self.current_hint})
+            self.room.broadcast("chat", {'type': 'hint', 'msg': 'Hint: **{}**'.format(self.current_hint)})
             for artist in self.artists:
                 artist.send('state_update', {'hints_remaining': self.hints_remaining})
 
