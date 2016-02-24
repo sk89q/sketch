@@ -26,10 +26,15 @@ function Transport(url) {
 }
 
 Transport.prototype.connect = function() {
+  if (this.socket) {
+    this.socket.connect();
+    return;
+  }
+
   this.socket = io.connect(this.url, {
     tryTransportsOnConnectTimeout: true,
     rememberTransport: false,
-    reconnection: true,
+    reconnection: false,
     forceNew: true
   });
 
