@@ -28,16 +28,25 @@ def create_hint(phrase, reveal_length):
 class PhraseChooser(object):
     def __init__(self, word_list):
         self.word_list = word_list
-        self.history = set()
+        self.rebuild()
+
+    def rebuild(self):
+        self.words = self.word_list.all_words()[:]
+        random.shuffle(self.words)
 
     def next(self):
-        return random.choice(self.word_list.words)
+        if not len(self.words):
+            self.rebuild()
+        return self.words.pop()
 
 
 class WordList(object):
     def __init__(self, name, words):
         self.name = name
         self.words = words
+
+    def all_words(self):
+        return self.words
 
 
 class WordListDatabase(object):

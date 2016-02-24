@@ -1,8 +1,6 @@
 todo:
-- shuffle words better
 - send version on connect
 - round commands
-- send word list info on join
 - remove debug
 
 later:
