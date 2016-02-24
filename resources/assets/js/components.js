@@ -620,7 +620,7 @@ export const Login = React.createClass({
         {
           this.props.transport.loginError != null ?
             <div className="alert alert-danger">{this.props.transport.loginError}</div> :
-            <p><em>SUPER ALPHA. All bugs are features.</em></p>
+            <p><em>SUPER ALPHA. All bugs are features.<br/>Now featuring the Eduardo DLC.</em></p>
         }
         <p><input type="text" className="form-control" value={this.state.name} placeholder="Pick a username..."
                   ref="username" onChange={this.handleNameChange}/></p>

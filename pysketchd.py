@@ -106,6 +106,9 @@ class Pen(object):
         self.index = index
         self.buffer = BytesIO()
 
+    def clear(self):
+        self.buffer = BytesIO()
+
     def write(self, data):
         self.buffer.write(data)
 
@@ -114,19 +117,33 @@ class Pen(object):
 
 
 class Drawing(object):
+    PACKET_CLEAR = 0
+    PACKET_COLOR = 1
+    PACKET_LINE_WIDTH = 2
+    PACKET_MOVE_TO = 3
+    PACKET_MOVE_TO_REL = 4
+    PACKET_LINE_TO = 5
+    PACKET_LINE_TO_REL = 6
+
     def __init__(self, room):
         self.room = room
         self.pens = {}
         self.next_pen_index = 0
 
     def draw(self, data, user):
-        #if data['action'] == 'clear':
-        #    self.log = []
         if user not in self.pens:
             self.pens[user] = Pen(self.next_pen_index)
             self.next_pen_index += 1
-        enveloped = struct.pack('>B', self.pens[user].index) + base64.b64decode(data)
-        self.pens[user].write(enveloped)
+
+        decoded = base64.b64decode(data)
+        type = struct.unpack('>B', decoded[0])
+        enveloped = struct.pack('>B', self.pens[user].index) + decoded
+
+        if type == self.PACKET_CLEAR:
+            self.pens[user].clear()
+        else:
+            self.pens[user].write(enveloped)
+
         self.room.broadcast('draw', base64.b64encode(enveloped).decode('ascii'), except_for=user)
 
     def send_drawn(self, user):
