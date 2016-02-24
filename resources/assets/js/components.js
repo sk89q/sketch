@@ -15,6 +15,7 @@ import ColorBag from './colorbag';
 import MarkdownMixin from './markup';
 
 var MIN_STROKE_DIST_SQ = Math.pow(3, 2);
+var MESSAGE_LIST_BUFFER_SIZE = 200;
 
 var sendSound = new Audio("/static/snd/send.mp3");
 
@@ -33,7 +34,11 @@ export const MessageList = React.createClass({
   componentWillMount: function () {
     this.addTransportHandler('chat', msg => {
       msg.id = this.lastIndex++;
-      this.setState({messages: this.state.messages.concat([msg])});
+      var messages = this.state.messages.concat([msg]);
+      while (messages.length > MESSAGE_LIST_BUFFER_SIZE) {
+        messages.shift();
+      }
+      this.setState({messages: messages});
     });
   },
   componentDidMount: function () {
