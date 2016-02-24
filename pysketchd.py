@@ -368,19 +368,19 @@ class RoundState(State):
         if self.has_no_one_guessed():
             self.room.messages.broadcast(
                 "round-end",
-                "Nobody guessed the word **{}**!".format(self.phrase))
+                "Nobody guessed the word **{}** drawn by *{}*!".format(self.phrase, ', '.join([u.name for u in self.artists])))
         elif self.has_everyone_guessed():
             self.room.messages.broadcast(
                 "round-end",
-                "Everyone guessed the word **{}**!".format(self.phrase))
+                "Everyone guessed the word **{}** drawn by *{}*!".format(self.phrase, ', '.join([u.name for u in self.artists])))
         elif len(self.guessers) == 1:
             self.room.messages.broadcast(
                 "round-end",
-                "**{}** guessed the word **{}**!".format(next(iter(self.guessers)).name, self.phrase))
+                "**{}** guessed the word **{}** drawn by *{}*!".format(next(iter(self.guessers)).name, self.phrase, ', '.join([u.name for u in self.artists])))
         else:
             self.room.messages.broadcast(
                 "round-end",
-                "**{}** guessed the word **{}**!".format(", ".join([u.name for u in self.guessers]), self.phrase))
+                "**{}** guessed the word **{}** drawn by *{}*!".format(", ".join([u.name for u in self.guessers]), self.phrase, ', '.join([u.name for u in self.artists])))
 
         self.next_state()
 
