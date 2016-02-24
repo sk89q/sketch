@@ -15,7 +15,7 @@ from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit, disconnect
 from pysketch.util import *
 
-VALID_NAME_PATTERN = re.compile('^[A-Za-z0-9_]{2,20}$')
+VALID_NAME_PATTERN = re.compile('^[A-Za-z0-9_]{2,15}$')
 
 version = get_git_revision_hash()
 
@@ -730,9 +730,10 @@ def request_hint(data, user=None):
 @logged_in
 @in_room
 def say(data, user=None):
-    if not len(data['msg'].strip()):
+    message = data['msg'].strip()
+    if not len(message) or len(message) > 200:
         return
-    user.room.say(user, data['msg'])
+    user.room.say(user, message)
 
 
 @socketio.on('set_away')

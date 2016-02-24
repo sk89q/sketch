@@ -5,8 +5,6 @@ low priority:
 - use binary transport for draw data
 
 todo:
-- idle -> finishes round
-- say who last artist was
 - limit number of chat lines
 - shuffle words better
 - afk users that guess words are hard to see
@@ -21,3 +19,4 @@ todo:
 
 later:
 - binary
+- idle -> finishes round
