@@ -9,7 +9,7 @@ __all__ = ('get_git_revision_hash',
 
 def get_git_revision_hash():
     try:
-        return subprocess.check_output(['git', 'describe', '--dirty', '--all', '--long']).strip()
+        return subprocess.check_output(['git', 'describe', '--dirty', '--all', '--long']).decode('utf-8').strip()
     except Exception:
         logging.warning("Failed to get Git hash", exc_info=True)
         return "unknown"

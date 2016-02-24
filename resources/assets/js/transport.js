@@ -14,6 +14,7 @@ function Room(name, users) {
 
 function Transport(url) {
   this.url = url;
+  this.loginUsername = "guest";
   this.eventHandlers = {};
   this.socket = null;
   this.status = DISCONNECTED;
@@ -39,6 +40,7 @@ Transport.prototype.connect = function() {
     this.room = null;
     this.fire('connect');
     this.fire('status', this.status);
+    this.login(this.loginUsername);
   });
 
   this.socket.on('disconnect', () => {

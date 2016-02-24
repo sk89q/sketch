@@ -20,10 +20,6 @@ function setup() {
   transport.on('error', function (e) {
   });
 
-  transport.on("connect", function() {
-    transport.login("bobby" + Math.round(Math.random() * 10000));
-  });
-
   transport.on('alert', function (e) {
     console.error(e.message);
   });
@@ -64,7 +60,7 @@ function setup() {
     correctGuessSound.play();
   });
 
-  transport.connect();
+  //transport.connect();
 
   ReactDOM.render(
     <App transport={transport}/>,

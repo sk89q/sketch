@@ -556,72 +556,35 @@ export const Login = React.createClass({
   ],
   getInitialState: function () {
     return {
-      name: localStorage.sketchName || '',
-      logging_in: false,
-      connected: false,
-      joined: false
+      name: localStorage.sketchName || ''
     }
-  },
-  componentWillMount: function () {
-    this.addTransportHandler('connect', () => {
-      this.setState({connected: true, joined: false})
-    });
-    this.addTransportHandler('disconnect', () => {
-      this.setState({connected: false, joined: false, logging_in: false})
-    });
-    this.addTransportHandler('room', () => {
-      this.setState({joined: true, logging_in: false})
-    });
-    this.addTransportHandler('alert', () => {
-      this.setState({logging_in: false})
-    });
   },
   handleNameChange: function (e) {
     var text = e.target.value;
     this.setState({name: text});
+    this.props.transport.loginUsername = text;
   },
   handleSubmit: function (e) {
     e.preventDefault();
-    if (this.state.connected) {
-      this.setState({logging_in: true});
-      socket.emit('login', {username: this.state.name});
-    } else {
-      alert('Not connected yet!');
-    }
+    this.props.transport.connect();
   },
   render: function () {
-    if (this.state.joined) {
-      return (
-        <div></div>
-      );
-    } else {
-      if (this.state.logging_in) {
-        return (
-          <div className="backdrop">
-            <div id="login">
-              <p><i className="fa fa-circle-o-notch fa-spin"/> Engaging receptacles...</p>
-            </div>
-          </div>
-        )
-      } else {
-        return (
-          <div className="backdrop">
-            <form id="login" onSubmit={this.handleSubmit}>
-              <h1>
-                <img src="/static/img/sketch.png"/> SKetch
-              </h1>
-              <p><em>SUPER ALPHA. All bugs are features.</em></p>
-              <p>What's your name?</p>
-              <p><input type="text" className="form-control" value={this.state.name} placeholder="Pick a game name..."
-                        onChange={this.handleNameChange}/></p>
-              <p>
-                <button type="submit" className="btn btn-default">Let's play!</button>
-              </p>
-            </form>
-          </div>
-        )
-      }
-    }
+    var version = document.body.getAttribute("data-version");
+    return (
+      <form className="login-dialog" onSubmit={this.handleSubmit}>
+        <h1>
+          <img src="/static/img/sketch.png"/> SKetch
+        </h1>
+        <p><em>SUPER ALPHA. All bugs are features.</em></p>
+        <p>What's your name?</p>
+        <p><input type="text" className="form-control" value={this.state.name} placeholder="Pick a game name..."
+                  onChange={this.handleNameChange}/></p>
+        <p>
+          <button type="submit" className="btn btn-default">Let's play!</button>
+        </p>
+        <p>Version {version}</p>
+      </form>
+    );
   }
 });
 
@@ -641,11 +604,13 @@ export const App = React.createClass({
     switch (this.state.status) {
       case DISCONNECTED:
         return (
-          <div></div>
+          <Login transport={this.props.transport}/>
         );
       case CONNECTING:
         return (
-          <div>Connecting...</div>
+          <div id="login">
+            <p><i className="fa fa-circle-o-notch fa-spin"/> Engaging receptacles...</p>
+          </div>
         );
       case CONNECTED:
         return (

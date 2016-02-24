@@ -359,18 +359,18 @@ body {
   right: 0;
   bottom: 0;
   z-index: 1000;
+}
 
-  #login {
-    margin: 100px auto 0 auto;
-    width: 400px;
-    min-height: 200px;
-    padding: 40px;
-    border: 1px solid #ccc;
-    background: #fff;
-    text-align: center;
+.login-dialog {
+  margin: 100px auto 0 auto;
+  width: 400px;
+  min-height: 200px;
+  padding: 40px;
+  border: 1px solid #ccc;
+  background: #fff;
+  text-align: center;
 
-    h1 {
-      margin: 0 0 20px 0;
-    }
+  h1 {
+    margin: 0 0 20px 0;
   }
 }
