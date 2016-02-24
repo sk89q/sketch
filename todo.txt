@@ -1,20 +1,12 @@
-final:
-- check for script support
 
 low priority:
 - commands
 - validate draw data
 - use binary transport for draw data
 
-bugs:
-- draw drag off canvas
+todo:
 - idle -> finishes round
-- resolution of drawing is poor
-- bandwidth
-- text wrapping on users and text
 - say who last artist was
-- xhr poll error
-- prevent unicode spam
 - limit number of chat lines
 - shuffle words better
 - afk users that guess words are hard to see
@@ -22,9 +14,9 @@ bugs:
 - send guessed word to artists
 - chat length not limited
 - spam possible
-- ping
-- don't send back drawn
-- drawing corners
+- validate draw commands
+- send version on connect
+- round commands
 
-wip:
-- clear should clear drawing log
+later:
+- binary
