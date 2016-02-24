@@ -16,9 +16,8 @@ function setup() {
   var correctGuessSound = soundManager.createSound({url: "/static/snd/correct_guess.mp3"});
   var rushPhaseSound = soundManager.createSound({url: "/static/snd/rush_phase.mp3"});
   var tickingSound = soundManager.createSound({url: "/static/snd/ticking.mp3"});
-
-  transport.on('error', function (e) {
-  });
+  var joinSound = soundManager.createSound({url: "/static/snd/join.mp3"});
+  var partSound = soundManager.createSound({url: "/static/snd/part.mp3"});
 
   transport.on('welcome', function (data) {;
     transport.joinRoom('testing');
@@ -50,6 +49,14 @@ function setup() {
       rushPhaseSound.play();
       tickingSound.play({loops: 9999});
     }
+  });
+
+  transport.on('user_join', function (data) {;
+    joinSound.play();
+  });
+
+  transport.on('user_part', function (data) {;
+    partSound.play();
   });
 
   transport.on('guess_correct', function (data) {

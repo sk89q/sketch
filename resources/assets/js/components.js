@@ -14,10 +14,8 @@ import { Pen, NetworkedCanvas } from './pen';
 import ColorBag from './colorbag';
 import MarkdownMixin from './markup';
 
-var MIN_STROKE_DIST_SQ = Math.pow(5, 2);
+var MIN_STROKE_DIST_SQ = Math.pow(3, 2);
 
-var joinSound = new Audio("/static/snd/join.mp3");
-var partSound = new Audio("/static/snd/part.mp3");
 var sendSound = new Audio("/static/snd/send.mp3");
 
 export const MessageList = React.createClass({
