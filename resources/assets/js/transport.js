@@ -22,13 +22,15 @@ function Transport(url) {
   this.away = false;
   this.state = {};
   this.room = null;
+  this.loginError = null;
 }
 
 Transport.prototype.connect = function() {
   this.socket = io.connect(this.url, {
     tryTransportsOnConnectTimeout: true,
     rememberTransport: false,
-    reconnection: true
+    reconnection: true,
+    forceNew: true
   });
 
   this.state = CONNECTING;
@@ -38,6 +40,7 @@ Transport.prototype.connect = function() {
     console.info("Connection established");
     this.status = CONNECTED;
     this.room = null;
+    this.loginError = null;
     this.fire('connect');
     this.fire('status', this.status);
     this.login(this.loginUsername);
@@ -51,13 +54,20 @@ Transport.prototype.connect = function() {
     this.fire('status', this.status);
   });
 
+  this.socket.on('login_error', e => {
+    console.error("Login error", e);
+    this.loginError = e.message;
+    this.fire('login_error', e);
+    this.socket.disconnect();
+  });
+
   this.socket.on('error', e => {
     console.error("Error", e);
     this.fire('error', e);
   });
 
   this.socket.on('alert', data => {
-    console.error("Error", e);
+    console.error("Alert", data);
     this.fire('alert', data);
   });
 

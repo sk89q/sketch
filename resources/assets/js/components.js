@@ -2,10 +2,12 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import TimerMixin from 'react-timer-mixin';
 import _ from 'lodash';
 import FlipMove from 'react-flip-move';
 import ColorPicker from 'react-color';
+import Trianglify from 'trianglify';
 import Confetti from './confetti';
 import { TransportMixin, DISCONNECTED, CONNECTING, CONNECTED, LOGGED_IN } from './transport';
 import { Pen, NetworkedCanvas } from './pen';
@@ -62,7 +64,9 @@ export const MessageList = React.createClass({
 
     return (
       <ul id="chat" ref="container">
-        {messages}
+        <ReactCSSTransitionGroup transitionName="slide" transitionEnterTimeout={200} transitionLeaveTimeout={200}>
+          {messages}
+        </ReactCSSTransitionGroup>
       </ul>
     );
   }
@@ -98,7 +102,8 @@ export const ChatForm = React.createClass({
     return (
       <form id="chat-form" onSubmit={this.handleSubmit}>
         <div id="message-container">
-          <input type="text" id="message" ref="message" placeholder={this.state.canChat ? 'Type your guesses or messages here...' : 'No chatting when drawing!'}
+          <input type="text" id="message" ref="message"
+                 placeholder={this.state.canChat ? 'Type your guesses or messages here...' : 'No chatting when drawing!'}
                  value={this.state.message} onChange={this.handleMessageChange} disabled={!this.state.canChat}/>
         </div>
         <label className="sr-only" htmlFor="message">Message:</label>
@@ -164,7 +169,8 @@ export const UserList = React.createClass({
   render: function () {
     var users = this.state.users.map((user) => {
       return (
-        <li key={user.name} className={(user.drawing ? 'drawing ' : '') + (user.guessed ? 'guessed ' : '') + (user.away ? 'away ' : '')}>
+        <li key={user.name}
+            className={(user.drawing ? 'drawing ' : '') + (user.guessed ? 'guessed ' : '') + (user.away ? 'away ' : '')}>
           <span className="badge score">{user.score || '0'}</span>
           {user.name}
           <i className="fa fa-paint-brush artist-indicator"/>
@@ -173,9 +179,11 @@ export const UserList = React.createClass({
     });
     return (
       <ul id="users">
-        <FlipMove easing="ease-in-out">
-          {users}
-        </FlipMove>
+        <ReactCSSTransitionGroup transitionName="slide" transitionEnterTimeout={200} transitionLeaveTimeout={200}>
+          <FlipMove easing="ease-in-out">
+            {users}
+          </FlipMove>
+        </ReactCSSTransitionGroup>
       </ul>
     );
   }
@@ -317,7 +325,8 @@ export const DrawPanel = React.createClass({
     if (this.state.state == 'draw') {
       return (
         <div>
-          <Canvas ref="canvas" canDraw={true} color={[this.state.color.r, this.state.color.g, this.state.color.b]} tool={this.state.tool} transport={this.props.transport}/>
+          <Canvas ref="canvas" canDraw={true} color={[this.state.color.r, this.state.color.g, this.state.color.b]}
+                  tool={this.state.tool} transport={this.props.transport}/>
           <div id="toolbox">
             <div className="draw-controls">
               <div id="color-picker">
@@ -346,7 +355,8 @@ export const DrawPanel = React.createClass({
     } else {
       return (
         <div>
-          <Canvas canDraw={false} transport={this.props.transport} color={[this.state.color.r, this.state.color.g, this.state.color.b]}/>
+          <Canvas canDraw={false} transport={this.props.transport}
+                  color={[this.state.color.r, this.state.color.g, this.state.color.b]}/>
         </div>
       );
     }
@@ -550,6 +560,36 @@ export const ScoreScreen = React.createClass({
   }
 });
 
+export const SetupScreen = React.createClass({
+  componentDidMount: function () {
+    window.addEventListener('resize', this.handleResize);
+    this.handleResize();
+  },
+  componentWillUnmount: function () {
+    window.removeEventListener('resize', this.handleResize);
+  },
+  handleResize: function () {
+    var pattern = Trianglify({
+      width: window.innerWidth,
+      height: window.innerHeight,
+      x_colors: 'Spectral',
+      cell_size: 150
+    });
+    pattern.canvas(this.refs.background);
+  },
+  render: function() {
+    var version = document.body.getAttribute("data-version");
+    return (
+      <div>
+        <canvas className="background" ref="background" width="1" height="1"/>
+        {this.props.children}
+        <div className="version-text">{version}</div>
+        <div className="by">by @sk89q</div>
+      </div>
+    );
+  }
+});
+
 export const Login = React.createClass({
   mixins: [
     TransportMixin
@@ -568,21 +608,25 @@ export const Login = React.createClass({
     e.preventDefault();
     this.props.transport.connect();
   },
+  componentDidMount: function() {
+    this.refs.username.focus();
+  },
   render: function () {
-    var version = document.body.getAttribute("data-version");
     return (
-      <form className="login-dialog" onSubmit={this.handleSubmit}>
+      <form className="setup-window" onSubmit={this.handleSubmit}>
         <h1>
           <img src="/static/img/sketch.png"/> SKetch
         </h1>
-        <p><em>SUPER ALPHA. All bugs are features.</em></p>
-        <p>What's your name?</p>
-        <p><input type="text" className="form-control" value={this.state.name} placeholder="Pick a game name..."
-                  onChange={this.handleNameChange}/></p>
+        {
+          this.props.transport.loginError != null ?
+            <div className="alert alert-danger">{this.props.transport.loginError}</div> :
+            <p><em>SUPER ALPHA. All bugs are features.</em></p>
+        }
+        <p><input type="text" className="form-control" value={this.state.name} placeholder="Pick a username..."
+                  ref="username" onChange={this.handleNameChange}/></p>
         <p>
           <button type="submit" className="btn btn-default">Let's play!</button>
         </p>
-        <p>Version {version}</p>
       </form>
     );
   }
@@ -592,10 +636,10 @@ export const App = React.createClass({
   mixins: [
     TransportMixin
   ],
-  getInitialState: function() {
+  getInitialState: function () {
     return {status: this.props.transport.status};
   },
-  componentDidMount: function() {
+  componentDidMount: function () {
     this.addTransportHandler('status', data => {
       this.setState({status: data});
     });
@@ -604,23 +648,31 @@ export const App = React.createClass({
     switch (this.state.status) {
       case DISCONNECTED:
         return (
-          <Login transport={this.props.transport}/>
+          <SetupScreen>
+            <Login transport={this.props.transport}/>
+          </SetupScreen>
         );
       case CONNECTING:
         return (
-          <div id="login">
-            <p><i className="fa fa-circle-o-notch fa-spin"/> Engaging receptacles...</p>
-          </div>
+          <SetupScreen>
+            <div className="setup-window">
+              <i className="fa fa-circle-o-notch fa-spin"/> Connecting...
+            </div>
+          </SetupScreen>
         );
       case CONNECTED:
         return (
-          <div></div>
+          <SetupScreen>
+            <div className="setup-window">
+              <i className="fa fa-circle-o-notch fa-spin"/> Logging in...
+            </div>
+          </SetupScreen>
         );
       case LOGGED_IN:
         return (
           <div>
             <div id="header"><img src="/static/img/sketch.png"/> SKetch</div>
-            <switch transport={this.props.transport}/>
+            <HelpPanel transport={this.props.transport}/>
             <AwayPanel transport={this.props.transport}/>
             <DrawPanel transport={this.props.transport}/>
             <UserList transport={this.props.transport}/>

@@ -20,10 +20,6 @@ function setup() {
   transport.on('error', function (e) {
   });
 
-  transport.on('alert', function (e) {
-    console.error(e.message);
-  });
-
   transport.on('welcome', function (data) {;
     transport.joinRoom('testing');
   });

@@ -12,7 +12,7 @@ from io import BytesIO
 
 import eventlet
 from flask import Flask, render_template, request, send_from_directory
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, disconnect
 from pysketch.util import *
 
 VALID_NAME_PATTERN = re.compile('^[A-Za-z0-9_]{2,20}$')
@@ -633,9 +633,11 @@ def login(data):
             users.login(request.sid, username)
             log.debug("{} has logged in (sid: {})".format(username, request.sid))
         except NameInUseError as e:
-            emit('alert', {'message': 'That name is in use.', 'then': 'connect'})
+            emit('login_error', {'message': 'That name is in use.'})
+            disconnect()
     else:
-        emit('alert', {'message': 'You need an alphanumeric name between 2 and 20 characters long.', 'then': 'connect'})
+        emit('login_error', {'message': 'You need an alphanumeric name between 2 and 20 characters long.'})
+        disconnect()
 
 
 @socketio.on('connect')

@@ -28,4 +28,3 @@ bugs:
 
 wip:
 - clear should clear drawing log
-- per user pen
