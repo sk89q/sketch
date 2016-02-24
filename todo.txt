@@ -1,18 +1,11 @@
-
-low priority:
-- commands
-- validate draw data
-- use binary transport for draw data
-
 todo:
-- limit number of chat lines
 - shuffle words better
-- afk users that guess words are hard to see
-- spam possible
 - send version on connect
 - round commands
 - send word list info on join
+- remove debug
 
 later:
 - binary
 - idle -> finishes round
+- spam possible
