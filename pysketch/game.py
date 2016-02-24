@@ -56,6 +56,7 @@ class User(object):
         self.room = None
         self.socketio = socketio
         self._away = False
+        self.admin = False
 
     @property
     def away(self):
@@ -556,6 +557,14 @@ class Room(object):
             if not user.away:
                 active_users += 1
         return active_users
+
+    def set_word_list(self, word_list):
+        self.word_list = word_list
+        self.phrase_chooser = PhraseChooser(word_list)
+        self.broadcast('chat', {
+            'type': 'info',
+            'msg': "The word list is now **{}**.".format(self.word_list.name),
+        })
 
     def reset(self):
         random.shuffle(self.users)

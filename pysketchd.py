@@ -11,6 +11,7 @@ from pysketch.game import *
 from pysketch.util import *
 
 VALID_NAME_PATTERN = re.compile('^[A-Za-z0-9_]{2,15}$')
+SET_WORD_LIST_CMD_PATTERN = re.compile("^@@setwordlst +(.+)$", re.I)
 APP_VERSION = get_git_revision_hash()
 
 
@@ -70,7 +71,7 @@ if __name__ == '__main__':
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["X-Content-Type-Options"] = "nosniff"
         for key in ('X-WebKit-CSP', 'X-Content-Security-Policy', 'Content-Security-Policy'):
-            response.headers[key] = "default-src *; style-src * 'unsafe-inline'; media-src * 'unsafe-inline';"
+            response.headers[key] = "default-src *; style-src * 'unsafe-inline'; media-src * data: 'unsafe-inline';"
         return response
 
     @socketio.on_error()
@@ -151,7 +152,12 @@ if __name__ == '__main__':
         message = data['msg'].strip()
         if not len(message) or len(message) > 200:
             return
-        user.room.say(user, message)
+        m = SET_WORD_LIST_CMD_PATTERN.match(message)
+        if m:
+            word_list = wordlist_db.get(m.group(1))
+            user.room.set_word_list(word_list)
+        else:
+            user.room.say(user, message)
 
     @socketio.on('set_away')
     @logged_in
