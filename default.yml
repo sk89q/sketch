@@ -1,0 +1,10 @@
+secret_key: 9HQHEADAButr011KCjesl-Ls_gZgcVuql75_rT9X1m3P6jMmCe8gVgsBjslRK1qI
+rooms:
+  default:
+    word_list: Default
+  testing:
+    word_list: Default
+    params:
+      round_time: 30
+      score_time: 2
+      min_player_count: 2

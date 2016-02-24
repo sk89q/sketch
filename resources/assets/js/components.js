@@ -107,7 +107,7 @@ export const ChatForm = React.createClass({
         <div id="message-container">
           <input type="text" id="message" ref="message"
                  placeholder={this.state.canChat ? 'Type your guesses or messages here...' : 'No chatting when drawing!'}
-                 value={this.state.message} onChange={this.handleMessageChange} disabled={!this.state.canChat} maxlength="200"/>
+                 value={this.state.message} onChange={this.handleMessageChange} disabled={!this.state.canChat} maxLength="200"/>
         </div>
         <label className="sr-only" htmlFor="message">Message:</label>
         <button className="sr-only btn btn-default" type="submit">Send</button>
@@ -630,7 +630,7 @@ export const Login = React.createClass({
             <p><em>SUPER ALPHA. All bugs are features.<br/>Now featuring the Eduardo DLC.</em></p>
         }
         <p><input type="text" className="form-control" value={this.state.name} placeholder="Pick a username..."
-                  ref="username" onChange={this.handleNameChange} maxlength="15" pattern="^[A-Za-z0-9_]{2,15}$"/></p>
+                  ref="username" onChange={this.handleNameChange} maxLength="15" pattern="^[A-Za-z0-9_]{2,15}$"/></p>
         <p>
           <button type="submit" className="btn btn-default">Let's play!</button>
         </p>

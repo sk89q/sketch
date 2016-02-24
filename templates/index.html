@@ -7,7 +7,7 @@
         integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"
         integrity="sha384-XdYbMnZ/QjLh6iI4ogqCTaIjrFk87ip+ekIjefZch0Y+PvJ8CDYtEs1ipDmPorQ+" crossorigin="anonymous">
-  <link rel="stylesheet" href="/static/css/app.css">
+  <link rel="stylesheet" href="/static/css/app.css?{{ git_hash }}">
 </head>
 <body data-version="{{ git_hash }}">
 <div id="container">
@@ -41,7 +41,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"
         integrity="sha384-hNRMX8KZmQEfbL/EerzUsKC7mvNaFvAuq8RgHVG+Hd3zQ2L5lUMjrJyitOyftyUC" crossorigin="anonymous"></script>
 <script src="/bower_components/soundmanager2/script/soundmanager2-nodebug-jsmin.js"></script>
-<script src="/static/js/app.js"></script>
+<script src="/static/js/app.js?{{ git_hash }}"></script>
 <!-- Do you love Eduardo? -->
 <!-- version: {{ git_hash }} -->
 </body>
