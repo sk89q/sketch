@@ -21,7 +21,7 @@ function setup() {
   var partSound = soundManager.createSound({url: "/static/snd/part.mp3"});
 
   transport.on('welcome', function (data) {;
-    transport.joinRoom('testing');
+    transport.joinRoom('default');
   });
 
   transport.on('state', function (data) {
