@@ -1,4 +1,7 @@
 todo:
+- switch back to paintbrush after round
+- text scroll due to animation
+- when someone leaves, don't print round end
 
 later:
 - binary
