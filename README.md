@@ -1,4 +1,4 @@
-# pySketch 🎨✍
+# SKetch 🎨✍
 
 Drawing charades-inspired game server. The objective is to guess what the artist is drawing.
 Winners get points. Losers discover pity.
