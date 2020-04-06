@@ -1,0 +1,8 @@
+version: "3.4"
+services:
+  pysketch:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "8280:5000"
