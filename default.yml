@@ -1,5 +1,5 @@
-secret_key: 9HQHEADAButr011KCjesl-Ls_gZgcVuql75_rT9X1m3P6jMmCe8gVgsBjslRK1qI
-admin_password: eduardobra
+secret_key: wowchangeme
+admin_password: youhavethepower
 rooms:
   default:
     word_list: Default
