@@ -70,8 +70,6 @@ if __name__ == '__main__':
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["X-Content-Type-Options"] = "nosniff"
-        for key in ('X-WebKit-CSP', 'X-Content-Security-Policy', 'Content-Security-Policy'):
-            response.headers[key] = "default-src *; style-src * 'unsafe-inline'; media-src * data: 'unsafe-inline';"
         return response
 
     @socketio.on_error()
@@ -173,4 +171,4 @@ if __name__ == '__main__':
         return render_template('index.html', git_hash=APP_VERSION)
 
     rooms.start()
-    socketio.run(app, host=config.get("host", "127.0.0.1"), port=config.get("port", 5000))
+    socketio.run(app, host=config.get("host", "0.0.0.0"), port=config.get("port", 5000))
