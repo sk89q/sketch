@@ -1,0 +1,25 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+eventlet = "*"
+itsdangerous = "*"
+python-engineio = "*"
+python-socketio = "*"
+six = "*"
+Flask = "*"
+Flask-SocketIO = "*"
+Jinja2 = "*"
+MarkupSafe = "*"
+PyYAML = "*"
+Werkzeug = "*"
+
+[requires]
+python_version = "3.8"
+
+[scripts]
+pysketch = "python pysketchd.py"
