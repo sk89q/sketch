@@ -28,7 +28,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with io.open(args.config, "r", encoding="utf-8") as f:
-        config = yaml.load(f)
+        config = yaml.load(f, Loader=yaml.SafeLoader)
 
     wordlist_db = DirectoryWordLists("words")
     users = UserList()
