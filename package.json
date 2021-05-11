@@ -13,7 +13,7 @@
   "dependencies": {
     "base64-js": "^1.0.4",
     "bower": "^1.8.8",
-    "lodash": "^4.5.0",
+    "lodash": "^4.17.21",
     "react": "^0.14.7",
     "react-addons-css-transition-group": "^0.14.7",
     "react-color": "^1.2.0",
